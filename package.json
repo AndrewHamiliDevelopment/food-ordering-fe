@@ -18,6 +18,7 @@
     "@mui/styles": "^6.4.4",
     "@mui/system": "^6.4.3",
     "@mui/utils": "^6.4.3",
+    "axios": "^1.7.9",
     "food-ordering-fe": "file:",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
