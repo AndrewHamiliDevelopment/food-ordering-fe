@@ -35,16 +35,23 @@ export interface Product {
 }
 
 export class Api {
-    private axiosInstance: AxiosInstance;
+    private readonly axiosInstance: AxiosInstance;
     constructor(baseURL: string) {
         this.axiosInstance = axios.create({baseURL});
     }
 
-    getProducts = async (): Promise<AxiosResponse<Product>> => {
-        const headers = new URLSearchParams();
-        return await this.axiosInstance.get('', {})
+    getProducts = async (props: {page?: number; size?: number}): Promise<AxiosResponse<Paginated<Product>>> => {
+        const { page, size } = props;
+        const params = new URLSearchParams();
+        if(page) {
+            params.append('page', `${page}`);
+        }
+        if(size) {
+            params.append('size', `${size}`);
+        }
+        return await this.axiosInstance.get('/v1/products', { params })
     }
-    getCategories = async (): Promise<AxiosResponse<Category>> => {
-        return await this.axiosInstance.get('')
+    getCategories = async (): Promise<AxiosResponse<Paginated<Category>>> => {
+        return await this.axiosInstance.get('/v1/categories/tree', {})
     }
 }
