@@ -17,9 +17,9 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import LoginSignup from "./LoginSignup";
 import Cart from "./Cart";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { foodItems, categories } from "./data"; // Import foodItems and categories
+import {store} from '../store';
 
-const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery }) => {
+const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery, api }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -32,9 +32,10 @@ const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery }) 
   const handleSearchChange = (e) => {
     const newSearchQuery = e.target.value;
     setSearchQuery(newSearchQuery);
+    
 
     // Find the category where the item exists
-    const matchingCategory = foodItems.find((item) => item.name.toLowerCase().includes(newSearchQuery.toLowerCase()))?.category;
+    const matchingCategory = store.products.find((item) => item.name.toLowerCase().includes(newSearchQuery.toLowerCase()))?.category.name;
 
     // If a matching category is found, update the URL with search and category
     if (matchingCategory) {
@@ -53,7 +54,7 @@ const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery }) 
       <AppBar position="sticky" sx={{ backgroundColor: "#008000", padding: "8px 20px" }}>
         <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           {/* Logo and Search Bar */}
-          <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Box sx={{ display: "flex", alignItems: "center" }} onClick={() => navigate('/')}>
             <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
               <MenuIcon sx={{ fontSize: 30, color: "black" }} />
             </IconButton>

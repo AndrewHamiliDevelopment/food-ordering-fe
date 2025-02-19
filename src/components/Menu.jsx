@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Box, Typography, Grid, Card, CardMedia, CardContent, Button, Tabs, Tab } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom"; // useNavigate is the correct hook for navigation
 import {store} from '../store';
+import { formatNumberCurrency } from "../shared";
 
 
 const Menu = ({ addToCart }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState(store.categories[0].name); // Default category
+  const [selectedCategory, setSelectedCategory] = useState(''); // Default category
   const [searchQuery, setSearchQuery] = useState("");
 
   // Parse the search query and category from the URL (from query string)
@@ -16,14 +17,16 @@ const Menu = ({ addToCart }) => {
     const queryParams = new URLSearchParams(location.search);
     const categoryFromURL = queryParams.get("category");
     const searchFromURL = queryParams.get("search");
+    const categoryIndex = store.categories.findIndex((i) => i.name === categoryFromURL);
 
-    if (categoryFromURL && store.categories.find((i) => i.name === categoryFromURL) > -1) {
+    if (categoryFromURL &&  categoryIndex > -1) {
       setSelectedCategory(categoryFromURL);
-      const categoryIndex = store.categories.findIndex((i) => i.name === categoryFromURL);
       setSelectedTab(categoryIndex);
+      console.log('here')
     } else {
       setSelectedCategory(store.categories[0].name); // Default to the first category
       setSelectedTab(0);
+      console.log('there')
     }
 
     if (searchFromURL) {
@@ -111,7 +114,7 @@ const Menu = ({ addToCart }) => {
                 <CardMedia component="img" height="140" image={item.thumbnail.urls.file} alt={item.name} />
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Typography variant="body1" sx={{ fontWeight: "bold" }}>{item.name}</Typography>
-                  <Typography variant="body2" color="text.secondary">₱ {item.price}</Typography>
+                  <Typography variant="body2" color="text.secondary">{formatNumberCurrency(Number(item.price))}</Typography>
                 </CardContent>
                 <Box sx={{ padding: "10px" }}>
                   <Button
