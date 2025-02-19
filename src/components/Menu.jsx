@@ -51,7 +51,7 @@ const Menu = ({ addToCart }) => {
     const params = new URLSearchParams(location.search);
     params.set("category", category);
     params.delete("search"); // Remove the search query from URL
-    navigate.push({ search: params.toString() }); // Update the URL without reloading
+    navigate({ search: params.toString() }); // Update the URL without reloading
   };
 
   const handleSearchChange = (e) => {

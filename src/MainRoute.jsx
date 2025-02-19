@@ -12,7 +12,6 @@ import {store, useStore} from './store';
 import {each} from 'lodash';
 
 const MainRoute = ({ user }) => {
-  console.log(user);
 
   const [cart, setCart] = React.useState([]);
   const [isLoginOpen, setIsLoginOpen] = React.useState(false);
@@ -32,11 +31,21 @@ const MainRoute = ({ user }) => {
     // api.getProducts({page, size})
     // .then((res) => store.products = res.data.data);
 
+    const requests = [api.getProducts({page, size}), api.getCategories()];
+
+    if(user && user !== null) {
+      requests.push(api.getCart())
+    }
+
     const getResponses = async () => {
-      const responses = await Promise.all([api.getProducts({page, size}), api.getCategories()]);
+      const responses = await Promise.all(requests);
       
       store.products = responses[0].data.data;
       store.categories = responses[1].data;
+      if(responses.length >= 3) {
+        console.info('Get Cart')
+        store.cart = responses[2].data;
+      }
     }
 
     getResponses();
