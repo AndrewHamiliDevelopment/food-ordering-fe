@@ -1,46 +1,82 @@
-import React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import { Toolbar, Typography, InputAdornment } from '@mui/material';
-import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import SearchIcon from '@mui/icons-material/Search';
-import { TextField } from '@mui/material';
+import React, { useState } from "react";
+import {
+  AppBar,
+  Box,
+  Toolbar,
+  Typography,
+  InputAdornment,
+  Badge,
+  Button,
+  IconButton,
+  TextField,
+  Drawer,
+} from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import SearchIcon from "@mui/icons-material/Search";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import LoginSignup from "./LoginSignup";
+import Cart from "./Cart";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { foodItems, categories } from "./data"; // Import foodItems and categories
 
-const Header = () => {
+const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery }) => {
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleCartToggle = () => {
+    setIsCartOpen(!isCartOpen);
+  };
+
+  // Handle search input change and redirect to Menu page with search query and category
+  const handleSearchChange = (e) => {
+    const newSearchQuery = e.target.value;
+    setSearchQuery(newSearchQuery);
+
+    // Find the category where the item exists
+    const matchingCategory = foodItems.find((item) => item.name.toLowerCase().includes(newSearchQuery.toLowerCase()))?.category;
+
+    // If a matching category is found, update the URL with search and category
+    if (matchingCategory) {
+      const params = new URLSearchParams(location.search);
+      params.set("search", newSearchQuery);
+      params.set("category", matchingCategory);  // Set the correct category
+      navigate(`/Menu?${params.toString()}`, { replace: true }); // Redirect to Menu with search and category
+    } else {
+      // If no matching item is found, stay on the Home page or display a message
+      console.log("No matching item found!");
+    }
+  };
+
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" sx={{ backgroundColor: '#FFC300', padding: '5px 20px' }}> 
-        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          {/* Left Section: Logo and Menu Button */}
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <AppBar position="sticky" sx={{ backgroundColor: "#FFC300", padding: "8px 20px" }}>
+        <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          {/* Logo and Search Bar */}
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
-              <MenuIcon />
+              <MenuIcon sx={{ fontSize: 30, color: "black" }} />
             </IconButton>
-            <img 
-              src="/mcdo.png"  
-              alt="Restaurant Logo" 
-              style={{ height: '50px', width: 'auto' }} 
-            />
-            <Typography variant="h6" component="div" sx={{ ml: 1, fontWeight: 'bold', color: 'black' }}>
+            <img src="/mcdo.png" alt="Restaurant Logo" style={{ height: "50px", width: "auto" }} />
+            <Typography variant="h6" sx={{ ml: 1, fontWeight: "bold", color: "black" }}>
               McDelivery
             </Typography>
           </Box>
 
-          {/* Center: Search Box */}
+          {/* Search Box */}
           <TextField
             variant="outlined"
             placeholder="Search for your McDonald's favorites"
             size="small"
             sx={{
-              backgroundColor: 'white',
-              borderRadius: '30px',
-              width: '400px',
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': { borderColor: 'gray' },
-                '&:hover fieldset': { borderColor: '#FF9900' },
-                '&.Mui-focused fieldset': { borderColor: '#FF9900' },
+              backgroundColor: "white",
+              borderRadius: "30px",
+              marginLeft: "200px",
+              width: "400px",
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": { borderColor: "gray" },
+                "&:hover fieldset": { borderColor: "#FF9900" },
+                "&.Mui-focused fieldset": { borderColor: "#FF9900" },
               },
             }}
             InputProps={{
@@ -50,36 +86,41 @@ const Header = () => {
                 </InputAdornment>
               ),
             }}
+            onChange={handleSearchChange} // Update search query and redirect to Menu page with category
           />
 
-          {/* Right Section: Navigation Links & Cart */}
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {['Home', 'Menu', 'Send to Many', 'Orders', 'My Account'].map((text) => (
-              <Button 
-                key={text} 
-                sx={{ 
-                  color: 'black', 
-                  fontSize: '16px', 
-                  fontWeight: 'bold', 
-                  textTransform: 'none', 
-                  mx: 1, 
-                  fontFamily: 'Roboto, sans-serif'
-                }}
-              >
-                {text}
-              </Button>
-            ))}
-
-            <IconButton sx={{ color: 'black', ml: 2 }}>
-              <img
-                src="/basket.png"  
-                alt="Cart"
-                style={{ height: '30px', width: 'auto' }}  
-              />
-            </IconButton>
+          {/* Navigation Links & Cart */}
+          <Box sx={{ display: "flex", alignItems: "left", marginLeft: "350px" }}>
+            <Button sx={{ color: "black", textTransform: "none", fontWeight: "bold" }} component={Link} to="/Home">
+              Home
+            </Button>
+            <Button sx={{ color: "black", textTransform: "none", fontWeight: "bold" }} component={Link} to="/Menu">
+              Menu
+            </Button>
+            <Button sx={{ color: "black", textTransform: "none", fontWeight: "bold" }} component={Link} to="/profile">
+              Profile
+            </Button>
+            <Button sx={{ color: "black", textTransform: "none", fontWeight: "bold" }} onClick={() => setIsLoginOpen(true)}>
+              My Account
+            </Button>
           </Box>
+
+          {/* Shopping Cart */}
+          <IconButton sx={{ color: "black", ml: 2 }} onClick={handleCartToggle}>
+            <Badge badgeContent={cart.length} color="error">
+              <ShoppingCartIcon sx={{ fontSize: 28 }} />
+            </Badge>
+          </IconButton>
         </Toolbar>
       </AppBar>
+
+      {/* Cart Drawer */}
+      <Drawer anchor="right" open={isCartOpen} onClose={handleCartToggle}>
+        <Cart cartItems={cart} setCart={setCart} />
+      </Drawer>
+
+      {/* Login/Signup Popup */}
+      {isLoginOpen && <LoginSignup isOpen={isLoginOpen} setIsOpen={setIsLoginOpen} />}
     </Box>
   );
 };
