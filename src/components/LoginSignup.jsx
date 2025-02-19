@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { firebaseSignInWithEmailAndPassword } from "../shared";
 
 function LoginSignup({ isOpen, setIsOpen }) {
   const [email, setEmail] = useState("");
@@ -21,20 +22,7 @@ function LoginSignup({ isOpen, setIsOpen }) {
   if (!isOpen) return null;
 
   const handleLogin = async () => {
-    try {
-      const response = await axios.post("http://localhost:3000/login", {
-        email,
-        password,
-      });
-
-      if (response.status === 200) {
-        localStorage.setItem("user-info", JSON.stringify(response.data));
-        navigate("/home"); // Redirect after successful login
-        setIsOpen(false); // Close the modal after login
-      }
-    } catch (error) {
-      setError("Invalid email or password. Please try again.");
-    }
+    firebaseSignInWithEmailAndPassword({email, password})
   };
 
   const handleSignUp = async () => {
