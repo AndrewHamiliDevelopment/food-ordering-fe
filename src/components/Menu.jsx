@@ -116,7 +116,7 @@ const Menu = ({ addToCart }) => {
                 <Box sx={{ padding: "10px" }}>
                   <Button
                     fullWidth
-                    sx={{ backgroundColor: "#FFC300", color: "black", fontWeight: "bold" }}
+                    sx={{ backgroundColor: "#32CD32", color: "black", fontWeight: "bold" }}
                     onClick={() => {
                       if (typeof addToCart === "function") {
                         addToCart(item);

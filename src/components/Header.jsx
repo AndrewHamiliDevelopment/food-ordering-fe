@@ -50,16 +50,16 @@ const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery }) 
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="sticky" sx={{ backgroundColor: "#FFC300", padding: "8px 20px" }}>
+      <AppBar position="sticky" sx={{ backgroundColor: "#008000", padding: "8px 20px" }}>
         <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           {/* Logo and Search Bar */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
               <MenuIcon sx={{ fontSize: 30, color: "black" }} />
             </IconButton>
-            <img src="/mcdo.png" alt="Restaurant Logo" style={{ height: "50px", width: "auto" }} />
-            <Typography variant="h6" sx={{ ml: 1, fontWeight: "bold", color: "black" }}>
-              McDelivery
+            <img src="/ninja.png" alt="Restaurant Logo" style={{ height: "50px", width: "auto", borderRadius: "5px" }} />
+            <Typography variant="h6" sx={{ ml: 1, fontWeight: "bold", color: "white", fontStyle: "italic"}}>
+              FastNinja
             </Typography>
           </Box>
 
@@ -91,16 +91,16 @@ const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery }) 
 
           {/* Navigation Links & Cart */}
           <Box sx={{ display: "flex", alignItems: "left", marginLeft: "350px" }}>
-            <Button sx={{ color: "black", textTransform: "none", fontWeight: "bold" }} component={Link} to="/Home">
+            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/Home">
               Home
             </Button>
-            <Button sx={{ color: "black", textTransform: "none", fontWeight: "bold" }} component={Link} to="/Menu">
+            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/Menu">
               Menu
             </Button>
-            <Button sx={{ color: "black", textTransform: "none", fontWeight: "bold" }} component={Link} to="/profile">
+            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/profile">
               Profile
             </Button>
-            <Button sx={{ color: "black", textTransform: "none", fontWeight: "bold" }} onClick={() => setIsLoginOpen(true)}>
+            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} onClick={() => setIsLoginOpen(true)}>
               My Account
             </Button>
           </Box>
