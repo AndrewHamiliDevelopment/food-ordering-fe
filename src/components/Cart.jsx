@@ -63,10 +63,10 @@ const Cart = ({ cartItems, onRemoveItem, onUpdateQuantity }) => {
           <Button
             variant="contained"
             sx={{
-              backgroundColor: "#F5A623",
+              backgroundColor: "#32CD32",
               color: "#000",
               marginTop: 3,
-              '&:hover': { backgroundColor: '#E6951B' },
+              '&:hover': { backgroundColor: '#3CB371' },
               borderRadius: 10,
               fontWeight: 'bold',
               padding: '12px 20px',
