@@ -61,7 +61,16 @@ class Appp extends Component {
         <FirebaseAuthConsumer>
           {(ae) => (
               <>
-                {ae.providerId ? (<MainRoute user={ae.user} />): (<p>Loading...</p>)}
+                {ae.providerId ? (
+                  <>
+                  {ae.user && (
+                    <MainRoute user={ae.user} />
+                  )}
+                  {!ae.user && (
+                    <MainRoute user={ae.user} />
+                  )}
+                  </>
+                  ): (<p>Loading...</p>)}
               </>
             )}
         </FirebaseAuthConsumer>

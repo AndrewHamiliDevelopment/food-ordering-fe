@@ -63,6 +63,17 @@ const MainRoute = ({ user }) => {
 
     setCart({productId});
   };
+
+  const checkIfIsLoginShouldOpen = () => {
+    if(!user) {
+      setIsLoginOpen(true);
+    } else {
+      if(user === null) {
+        setIsLoginOpen(true);
+      }
+    }
+    window.alert(`Hello ${user.email}, this function is not yet implemented, coming soon!`);
+  }
   
 
   return (
@@ -70,7 +81,7 @@ const MainRoute = ({ user }) => {
       <Header
         cart={store.cart}
         isLoginOpen={isLoginOpen}
-        setIsLoginOpen={setIsLoginOpen}
+        setIsLoginOpen={() => checkIfIsLoginShouldOpen()}
         setSearchQuery={setSearchQuery}
         api={api}
         setCart={setCart}
