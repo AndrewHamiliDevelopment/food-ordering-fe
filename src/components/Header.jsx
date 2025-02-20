@@ -108,7 +108,7 @@ const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery, ap
 
           {/* Shopping Cart */}
           <IconButton sx={{ color: "black", ml: 2 }} onClick={handleCartToggle}>
-            <Badge badgeContent={cart.length} color="error">
+            <Badge badgeContent={cart ? cart.cartItems.length: 0} color="error">
               <ShoppingCartIcon sx={{ fontSize: 28 }} />
             </Badge>
           </IconButton>
@@ -117,7 +117,7 @@ const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery, ap
 
       {/* Cart Drawer */}
       <Drawer anchor="right" open={isCartOpen} onClose={handleCartToggle}>
-        <Cart cartItems={cart} setCart={setCart} />
+        <Cart cartItems={cart ? cart.cartItems: []} setCart={setCart} />
       </Drawer>
 
       {/* Login/Signup Popup */}

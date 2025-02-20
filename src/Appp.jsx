@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import firebase from "firebase";
+import firebase from 'firebase/app';
 import {
   FirebaseAuthConsumer,
   FirebaseAuthProvider,
@@ -61,7 +61,7 @@ class Appp extends Component {
         <FirebaseAuthConsumer>
           {(ae) => (
               <>
-                <MainRoute user={ae.user} />
+                {ae.providerId ? (<MainRoute user={ae.user} />): (<p>Loading...</p>)}
               </>
             )}
         </FirebaseAuthConsumer>

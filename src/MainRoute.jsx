@@ -13,23 +13,19 @@ import {each} from 'lodash';
 
 const MainRoute = ({ user }) => {
 
-  const [cart, setCart] = React.useState([]);
   const [isLoginOpen, setIsLoginOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [page, setPage] = React.useState(1);
   const [size, setSize] = React.useState(10);
+  const [isReady, setIsReady] = React.useState(false);
 
-  const addToCart = () => {};
+  
 
   const api = new Api(import.meta.env.VITE_API_BASE_URL, user);
 
   React.useEffect(() => {
-    // api.getCategories().then((res) => {
-    //     store.categories = res.data;
-    // })
-    // .catch((error) => console.error('error'))
-    // api.getProducts({page, size})
-    // .then((res) => store.products = res.data.data);
+
+    console.log("🚀 ~ MainRoute: user", user);
 
     const requests = [api.getProducts({page, size}), api.getCategories()];
 
@@ -39,30 +35,45 @@ const MainRoute = ({ user }) => {
 
     const getResponses = async () => {
       const responses = await Promise.all(requests);
-      
       store.products = responses[0].data.data;
       store.categories = responses[1].data;
       if(responses.length >= 3) {
-        console.info('Get Cart')
         store.cart = responses[2].data;
       }
+      setIsReady(true);
     }
 
+    console.log("🚀 ~ React.useEffect ~ requests:", requests)
+    
     getResponses();
 
   }, []);
 
-  React.useEffect(() => {console.log('store', store)}, [store]);
+  const setCart = (props) => {
+    const {productId} = props;
+    api.addToCart({productId})
+    .then((res) => store.cart = res.data)
+    .catch((error) => {
+      console.error('Add to cart Error', error);
+    })
+  }
+
+  const addToCart = (props) => {
+    const {productId} = props;
+
+    setCart({productId});
+  };
   
 
   return (
     <Router>
       <Header
-        cart={cart}
+        cart={store.cart}
         isLoginOpen={isLoginOpen}
         setIsLoginOpen={setIsLoginOpen}
         setSearchQuery={setSearchQuery}
         api={api}
+        setCart={setCart}
       />
 
       <main
@@ -71,19 +82,19 @@ const MainRoute = ({ user }) => {
           pointerEvents: isLoginOpen ? "none" : "auto",
         }}
       >
-        <Routes>
+        {isReady && (<Routes>
           <Route path="/" element={<Home />} />
           <Route path="Home" element={<Navigate to="/" />} />
           <Route
             path="/menu"
-            element={<Menu api={api} addToCart={addToCart} searchQuery={searchQuery} />}
+            element={<Menu addToCart={addToCart} searchQuery={searchQuery} />}
           />
           <Route
             path="/cart"
-            element={<Cart cartItems={cart} setCart={setCart} />}
+            element={<Cart cartItems={store.cart ? store.cart.cartItems: []} setCart={setCart} />}
           />
-          <Route path="/checkout" element={<Checkout cart={cart} />} />
-        </Routes>
+          <Route path="/checkout" element={<Checkout cart={store.cart} />} />
+        </Routes>)}
       </main>
 
       {isLoginOpen && (

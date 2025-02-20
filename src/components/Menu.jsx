@@ -122,7 +122,7 @@ const Menu = ({ addToCart }) => {
                     sx={{ backgroundColor: "#32CD32", color: "black", fontWeight: "bold" }}
                     onClick={() => {
                       if (typeof addToCart === "function") {
-                        addToCart(item);
+                        addToCart({productId: item.id});
                       } else {
                         console.error("addToCart is not a function!");
                       }
