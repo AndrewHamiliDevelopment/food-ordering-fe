@@ -2,8 +2,23 @@ import firebase from 'firebase';
 
 export const firebaseSignInWithEmailAndPassword = async (props: {email: string; password: string}) => {
     const {email, password} = props;
-    const user = await firebase.auth().signInWithEmailAndPassword(email, password);
-    console.log('Signed in', user);
+    try{
+      const user = await firebase.auth().signInWithEmailAndPassword(email, password);
+      console.log('Signed in', user);
+    } catch (error) {
+      console.error('sign-in error', error);
+    }
+}
+
+export const firebaseSignUp = async (props: {email: string; password: string}) => {
+  const {email, password} = props;
+  try {
+    const user = await firebase.auth().createUserWithEmailAndPassword(email, password);
+    console.log('User Created', user);
+  } catch (error) {
+    console.error('sign-up error', error);
+    window.alert(JSON.stringify(error));
+  }
 }
 
 export const formatNumberCurrency = (num: number): string => {
