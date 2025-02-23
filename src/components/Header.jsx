@@ -59,7 +59,7 @@ const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery }) 
             </IconButton>
             <img src="/ninja.png" alt="Restaurant Logo" style={{ height: "50px", width: "auto", borderRadius: "5px" }} />
             <Typography variant="h6" sx={{ ml: 1, fontWeight: "bold", color: "white", fontStyle: "italic"}}>
-              FastNinja
+              FFNinja
             </Typography>
           </Box>
 
@@ -91,10 +91,10 @@ const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery }) 
 
           {/* Navigation Links & Cart */}
           <Box sx={{ display: "flex", alignItems: "left", marginLeft: "350px" }}>
-            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/Home">
+            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/home">
               Home
             </Button>
-            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/Menu">
+            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/menu">
               Menu
             </Button>
             <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/profile">
@@ -107,8 +107,8 @@ const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery }) 
 
           {/* Shopping Cart */}
           <IconButton sx={{ color: "black", ml: 2 }} onClick={handleCartToggle}>
-            <Badge badgeContent={cart.length} color="error">
-              <ShoppingCartIcon sx={{ fontSize: 28 }} />
+          <Badge badgeContent={cart?.length || 0} color="error">
+          <ShoppingCartIcon sx={{ fontSize: 28 }} />
             </Badge>
           </IconButton>
         </Toolbar>

@@ -7,6 +7,7 @@ import Home from "./components/Home";
 import Menu from "./components/Menu";
 import Cart from "./components/Cart";
 import Checkout from "./components/Checkout";
+import Profile from "./components/Profile";
 
 function App() {
   const [cart, setCart] = useState([]); // <-- using useState
@@ -37,6 +38,7 @@ function App() {
       <main style={{ filter: isLoginOpen ? "blur(3px)" : "none", pointerEvents: isLoginOpen ? "none" : "auto" }}>
         <Routes>
           <Route path="/home" element={<Home />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/menu" element={<Menu addToCart={addToCart} searchQuery={searchQuery} />} />
           <Route path="/cart" element={<Cart cartItems={cart} setCart={setCart} />} />
           <Route path="/checkout" element={<Checkout cart={cart} />} />
