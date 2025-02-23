@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { firebaseSignInWithEmailAndPassword, firebaseSignUp } from "../shared";
 
 function LoginSignup({ isOpen, setIsOpen }) {
   const [email, setEmail] = useState("");
@@ -21,20 +22,7 @@ function LoginSignup({ isOpen, setIsOpen }) {
   if (!isOpen) return null;
 
   const handleLogin = async () => {
-    try {
-      const response = await axios.post("http://localhost:3000/login", {
-        email,
-        password,
-      });
-
-      if (response.status === 200) {
-        localStorage.setItem("user-info", JSON.stringify(response.data));
-        navigate("/home"); // Redirect after successful login
-        setIsOpen(false); // Close the modal after login
-      }
-    } catch (error) {
-      setError("Invalid email or password. Please try again.");
-    }
+    firebaseSignInWithEmailAndPassword({email, password})
   };
 
   const handleSignUp = async () => {
@@ -43,24 +31,8 @@ function LoginSignup({ isOpen, setIsOpen }) {
       return;
     }
 
-    try {
-      const response = await axios.post("http://localhost:3000/signup", {
-        firstName,
-        lastName,
-        email,
-        address,
-        mobile,
-        password,
-      });
+    firebaseSignUp({email, password});
 
-      if (response.status === 201) {
-        localStorage.setItem("user-info", JSON.stringify(response.data));
-        navigate("/home"); // Redirect after successful sign-up
-        setIsOpen(false); // Close the modal after sign-up
-      }
-    } catch (error) {
-      setError("Error during sign-up. Please try again.");
-    }
   };
 
   return (
@@ -107,8 +79,8 @@ function LoginSignup({ isOpen, setIsOpen }) {
         </button>
 
         <img
-          src="mcdonalds.png"
-          alt="McDonald's Logo"
+          src="ninja.png"
+          alt=" Restourant Logo"
           style={{ width: "60px", display: "block", margin: "0 auto 10px" }}
         />
         <h2 style={{ fontSize: "20px", fontWeight: "bold", marginBottom: "5px" }}>
@@ -121,33 +93,13 @@ function LoginSignup({ isOpen, setIsOpen }) {
           {isSignUp && (
             <>
               <input
-                type="text"
-                placeholder="First Name"
+                type="email"
+                placeholder="E-mail address"
                 style={inputStyle}
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
-              <input
-                type="text"
-                placeholder="Last Name"
-                style={inputStyle}
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Address"
-                style={inputStyle}
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Mobile Number"
-                style={inputStyle}
-                value={mobile}
-                onChange={(e) => setMobile(e.target.value)}
-              />
+              
               <div style={inputWrapper}>
                 <input
                   type={showPassword ? "text" : "password"}

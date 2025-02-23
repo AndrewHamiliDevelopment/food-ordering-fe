@@ -17,12 +17,13 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import LoginSignup from "./LoginSignup";
 import Cart from "./Cart";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { foodItems, categories } from "./data"; // Import foodItems and categories
+import {store, useStore} from '../store';
 
-const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery }) => {
+const Header = ({ setIsLoginOpen, isLoginOpen, setSearchQuery, api, onUpdateQuantity, onRemoveItem }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const snap = useStore();
 
   const handleCartToggle = () => {
     setIsCartOpen(!isCartOpen);
@@ -32,9 +33,10 @@ const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery }) 
   const handleSearchChange = (e) => {
     const newSearchQuery = e.target.value;
     setSearchQuery(newSearchQuery);
+    
 
     // Find the category where the item exists
-    const matchingCategory = foodItems.find((item) => item.name.toLowerCase().includes(newSearchQuery.toLowerCase()))?.category;
+    const matchingCategory = store.products.find((item) => item.name.toLowerCase().includes(newSearchQuery.toLowerCase()))?.category.name;
 
     // If a matching category is found, update the URL with search and category
     if (matchingCategory) {
@@ -48,18 +50,24 @@ const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery }) 
     }
   };
 
+  React.useEffect(() => {console.log('snap cart', snap.cart)}, [snap.cart])
+
+  const CartComponent = React.useMemo(() => {
+    console.log('here');
+     return (<Cart onUpdateQuantity={onUpdateQuantity} onRemoveItem={onRemoveItem} />)}, [snap.cart]);
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="sticky" sx={{ backgroundColor: "#008000", padding: "8px 20px" }}>
         <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           {/* Logo and Search Bar */}
-          <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Box sx={{ display: "flex", alignItems: "center" }} onClick={() => navigate('/')}>
             <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
               <MenuIcon sx={{ fontSize: 30, color: "black" }} />
             </IconButton>
             <img src="/ninja.png" alt="Restaurant Logo" style={{ height: "50px", width: "auto", borderRadius: "5px" }} />
             <Typography variant="h6" sx={{ ml: 1, fontWeight: "bold", color: "white", fontStyle: "italic"}}>
-              FastNinja
+              FFNinja
             </Typography>
           </Box>
 
@@ -91,10 +99,10 @@ const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery }) 
 
           {/* Navigation Links & Cart */}
           <Box sx={{ display: "flex", alignItems: "left", marginLeft: "350px" }}>
-            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/Home">
+            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/home">
               Home
             </Button>
-            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/Menu">
+            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/menu">
               Menu
             </Button>
             <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/profile">
@@ -107,7 +115,7 @@ const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery }) 
 
           {/* Shopping Cart */}
           <IconButton sx={{ color: "black", ml: 2 }} onClick={handleCartToggle}>
-            <Badge badgeContent={cart.length} color="error">
+            <Badge badgeContent={store.cart ? store.cart.cartItems.reduce((item, val) => item + val.quantity, 0): 0} color="error">
               <ShoppingCartIcon sx={{ fontSize: 28 }} />
             </Badge>
           </IconButton>
@@ -116,7 +124,7 @@ const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery }) 
 
       {/* Cart Drawer */}
       <Drawer anchor="right" open={isCartOpen} onClose={handleCartToggle}>
-        <Cart cartItems={cart} setCart={setCart} />
+        {CartComponent}
       </Drawer>
 
       {/* Login/Signup Popup */}
