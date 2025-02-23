@@ -17,12 +17,13 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import LoginSignup from "./LoginSignup";
 import Cart from "./Cart";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {store} from '../store';
+import {store, useStore} from '../store';
 
-const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery, api }) => {
+const Header = ({ setIsLoginOpen, isLoginOpen, setSearchQuery, api, onUpdateQuantity, onRemoveItem }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const snap = useStore();
 
   const handleCartToggle = () => {
     setIsCartOpen(!isCartOpen);
@@ -48,6 +49,12 @@ const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery, ap
       console.log("No matching item found!");
     }
   };
+
+  React.useEffect(() => {console.log('snap cart', snap.cart)}, [snap.cart])
+
+  const CartComponent = React.useMemo(() => {
+    console.log('here');
+     return (<Cart onUpdateQuantity={onUpdateQuantity} onRemoveItem={onRemoveItem} />)}, [snap.cart]);
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -108,7 +115,7 @@ const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery, ap
 
           {/* Shopping Cart */}
           <IconButton sx={{ color: "black", ml: 2 }} onClick={handleCartToggle}>
-            <Badge badgeContent={cart ? cart.cartItems.length: 0} color="error">
+            <Badge badgeContent={store.cart ? store.cart.cartItems.reduce((item, val) => item + val.quantity, 0): 0} color="error">
               <ShoppingCartIcon sx={{ fontSize: 28 }} />
             </Badge>
           </IconButton>
@@ -117,7 +124,7 @@ const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery, ap
 
       {/* Cart Drawer */}
       <Drawer anchor="right" open={isCartOpen} onClose={handleCartToggle}>
-        <Cart cartItems={cart ? cart.cartItems: []} setCart={setCart} />
+        {CartComponent}
       </Drawer>
 
       {/* Login/Signup Popup */}

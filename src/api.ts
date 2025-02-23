@@ -66,6 +66,13 @@ export interface CartItem {
     quantity: number;
 }
 
+export interface PaymentMethod {
+    name: string;
+    description: string;
+    additionalNotes: string;
+    enabled: boolean;
+}
+
 export class Api {
     private readonly axiosInstance: AxiosInstance;
     constructor(baseURL: string, private readonly user?: firebase.User) {
@@ -77,6 +84,18 @@ export class Api {
             throw new Error('Firebase user not available')
         }
         return await this.axiosInstance.get('v1/users/me', {headers: {Authorization: `Bearer ${await this.user.getIdToken()}`}})
+    }
+
+    getPaymentMethods = async (props: {page?: number; size?: number }): Promise<AxiosResponse<PaymentMethod>> => {
+        const { page, size } = props
+        const params = new URLSearchParams();
+        if(page) {
+            params.append('page', `${page}`);
+        }
+        if(size) {
+            params.append('size', `${size}`)
+        }
+        return await this.axiosInstance.get('/v1/payment-method', { params })
     }
 
     getProducts = async (props: {page?: number; size?: number}): Promise<AxiosResponse<Paginated<Product>>> => {

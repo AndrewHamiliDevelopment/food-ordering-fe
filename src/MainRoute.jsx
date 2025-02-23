@@ -26,9 +26,10 @@ const MainRoute = ({ user }) => {
 
   React.useEffect(() => {
 
-    console.log("🚀 ~ MainRoute: user", user);
-
-    const requests = [api.getProducts({page, size}), api.getCategories()];
+    const requests = [
+      api.getProducts({page, size}),
+      api.getCategories(),
+      api.getPaymentMethods({})];
 
     if(user && user !== null) {
       requests.push(api.getMe());
@@ -38,19 +39,20 @@ const MainRoute = ({ user }) => {
 
     const getResponses = async () => {
       try {
-        const responses = await Promise.all(requests)
-      store.products = responses[0].data.data;
-      store.categories = responses[1].data;
-      if(responses.length >= 4) {
-        store.me = responses[2].data;
-        store.cart = responses[3].data;
+        const responses = await Promise.all(requests);
+        console.log("🚀 ~ getResponses ~ responses:", responses)
+        store.products = responses[0].data.data;
+        store.categories = responses[1].data;
+        store.paymentMethods = responses[2].data.data;
+      if(responses.length >= 5) {
+        store.me = responses[3].data;
+        store.cart = responses[4].data;
       }
       setIsReady(true);
       } catch (error) {
         console.error('error', error);
       }
     }
-    console.log("🚀 ~ React.useEffect ~ requests:", requests)
     getResponses();
 
   }, []);
@@ -71,6 +73,14 @@ const MainRoute = ({ user }) => {
 
     setCart({productId});
   };
+
+  const removeFromCart = (props) => {
+    const {productId} = props;
+    api.removeFromCart({productId}).then((res) => store.cart = res.data)
+    .catch ((error) => {
+      console.error('remove from cart error', error);
+    })
+  }
 
   const checkIfIsLoginShouldOpen = () => {
     if(!user) {
@@ -93,6 +103,8 @@ const MainRoute = ({ user }) => {
         setSearchQuery={setSearchQuery}
         api={api}
         setCart={setCart}
+        onUpdateQuantity={addToCart}
+        onRemoveItem={removeFromCart}
       />
 
       <main
@@ -110,7 +122,7 @@ const MainRoute = ({ user }) => {
           />
           <Route
             path="/cart"
-            element={<Cart cartItems={store.cart ? store.cart.cartItems: []} setCart={setCart} />}
+            element={<Cart cartItems={store.cart ? store.cart.cartItems: []} setCart={setCart} onRemoveItem={removeFromCart} onUpdateQuantity={addToCart} />}
           />
           <Route path="/checkout" element={<Checkout cart={store.cart} />} />
           <Route path="/profile" element={<Profile />} />

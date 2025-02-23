@@ -5,11 +5,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import {store} from '../store'
+import { each } from 'lodash';
+import { formatNumberCurrency } from '../shared';
 
 const Checkout = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { cart, total } = location.state || { cart: [], total: 0 };
   
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -17,6 +19,7 @@ const Checkout = () => {
   const [address, setAddress] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
   const [position, setPosition] = useState([14.676, 121.043]); // Default to Manila
+  const [summary, setSummary] = React.useState({subTotal: 0, grandTotal: 0});
   
   const markerIcon = new L.Icon({
     iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
@@ -34,6 +37,20 @@ const Checkout = () => {
     });
     return <Marker position={position} draggable icon={markerIcon} />;
   }
+
+  React.useEffect(() => {
+    console.log('useEffect', store.cart);
+    if(store.cart.cartItems !== null) {
+      console.log('cartItems', store.cart.cartItems);
+      const subTotal = store.cart.cartItems.reduce((total, val) => total + Number(val.product.price) * val.quantity, 0);
+      console.log("🚀 ~ React.useEffect ~ subTotal:", subTotal)
+      const deliveryFee = 49;
+      const grandTotal = deliveryFee + subTotal;
+      setSummary({subTotal, grandTotal});
+    }
+  }, []);
+
+  React.useEffect(() => {}, [summary]);
   
   return (
     <Box sx={{ maxWidth: 600, margin: 'auto', padding: 2 }}>
@@ -60,20 +77,20 @@ const Checkout = () => {
       {/* Payment Method */}
       <Typography variant="h6" sx={{ fontWeight: 'bold', mt: 3 }}>Payment Method</Typography>
       <Select fullWidth value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} sx={{ mt: 1 }}>
-        <MenuItem value="Cash on Delivery">Cash on Delivery</MenuItem>
-        <MenuItem value="Credit Card">Credit Card</MenuItem>
-        <MenuItem value="Gcash">Gcash</MenuItem>
+        {store.paymentMethods.map((pm) => {
+          return (<MenuItem key={pm.id} value={pm.id}>{pm.name}</MenuItem>);
+        })}
       </Select>
       
       {/* Order Summary */}
       <Typography variant="h6" sx={{ fontWeight: 'bold', mt: 3 }}>Order Summary</Typography>
-      {cart.map((item) => (
+      {store.cart.cartItems.map((item) => (
         <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-          <Typography>{item.quantity}x {item.name}</Typography>
-          <Typography>₱ {item.price * item.quantity}</Typography>
+          <Typography>{item.quantity} x {item.product.name}</Typography>
+          <Typography>{formatNumberCurrency(item.product.price * item.quantity)}</Typography>
         </Box>
       ))}
-      <Typography variant="h6" sx={{ fontWeight: 'bold', mt: 2 }}>Total: ₱ {total}</Typography>
+      <Typography variant="h6" sx={{ fontWeight: 'bold', mt: 2 }}>Total: {formatNumberCurrency(summary.grandTotal)}</Typography>
       
       {/* Confirm Order */}
       <Button variant="contained" fullWidth sx={{ backgroundColor: '#FFC300', color: 'black', mt: 3 }}>Place Order</Button>

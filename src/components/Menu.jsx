@@ -22,11 +22,9 @@ const Menu = ({ addToCart }) => {
     if (categoryFromURL &&  categoryIndex > -1) {
       setSelectedCategory(categoryFromURL);
       setSelectedTab(categoryIndex);
-      console.log('here')
     } else {
       setSelectedCategory(store.categories[0].name); // Default to the first category
       setSelectedTab(0);
-      console.log('there')
     }
 
     if (searchFromURL) {
