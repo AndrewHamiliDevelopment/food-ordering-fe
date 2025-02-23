@@ -1,4 +1,4 @@
-import firebase from 'firebase';
+import firebase from 'firebase/app';
 
 export const firebaseSignInWithEmailAndPassword = async (props: {email: string; password: string}) => {
     const {email, password} = props;
