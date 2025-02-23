@@ -10,6 +10,7 @@ import Header from "./components/Header";
 import LoginSignup from "./components/LoginSignup";
 import {store, useStore} from './store';
 import {each} from 'lodash';
+import Profile from "./components/Profile";
 
 const MainRoute = ({ user }) => {
 
@@ -30,24 +31,31 @@ const MainRoute = ({ user }) => {
     const requests = [api.getProducts({page, size}), api.getCategories()];
 
     if(user && user !== null) {
-      requests.push(api.getCart())
+      requests.push(api.getMe());
+      requests.push(api.getCart());
+
     }
 
     const getResponses = async () => {
-      const responses = await Promise.all(requests);
+      try {
+        const responses = await Promise.all(requests)
       store.products = responses[0].data.data;
       store.categories = responses[1].data;
-      if(responses.length >= 3) {
-        store.cart = responses[2].data;
+      if(responses.length >= 4) {
+        store.me = responses[2].data;
+        store.cart = responses[3].data;
       }
       setIsReady(true);
+      } catch (error) {
+        console.error('error', error);
+      }
     }
-
     console.log("🚀 ~ React.useEffect ~ requests:", requests)
-    
     getResponses();
 
   }, []);
+
+  React.useEffect(() => {console.info('store', store)}, [store, store.cart, store.me]);
 
   const setCart = (props) => {
     const {productId} = props;
@@ -105,6 +113,7 @@ const MainRoute = ({ user }) => {
             element={<Cart cartItems={store.cart ? store.cart.cartItems: []} setCart={setCart} />}
           />
           <Route path="/checkout" element={<Checkout cart={store.cart} />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>)}
       </main>
 

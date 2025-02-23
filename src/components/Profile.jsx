@@ -6,8 +6,10 @@ import L from 'leaflet';
 import markerIconPng from "leaflet/dist/images/marker-icon.png";
 import { Icon } from "leaflet";
 import './Profile.css';
+import {store} from '../store';
 
 const Profile = () => {
+  const [me, setMe] = React.useState(store.me)
     const [selectedGender, setSelectedGender] = useState("");
   const [selectedSection, setSelectedSection] = useState('Personal Information');
   const [profileImage, setProfileImage] = useState(null);
@@ -131,13 +133,13 @@ const Profile = () => {
             <form>
               <div className="input-group">
                 <label>First Name</label>
-                <input type="text" placeholder="Kail" />
+                <input type="text" placeholder={me.userDetail !== null ? me.userDetail.firstName: '--not-set--'} />
                 <label>Last Name</label>
-                <input type="text" placeholder="Hamili" />
+                <input type="text" placeholder={me.userDetail !== null ? me.userDetail.firstName: '--not-set--'} />
               </div>
               <div className="input-group">
                 <label>Email</label>
-                <input type="email" placeholder="Sir_kail@company.com" />
+                <input type="email" placeholder={me.email} />
               </div>
               <div className="input-group">
                 <label>Phone</label>

@@ -1,13 +1,14 @@
 import {proxy, useSnapshot} from 'valtio';
 
-import { Product, Category, Cart } from './api';
+import { Product, Category, Cart, User } from './api';
 
 
 export interface Store {
     products: Product[];
     categories: Category[];
-    cart: Cart | null
+    me: User | null;
+    cart: Cart | null;
 }
 
-export const store = proxy<Store>({products: [], categories: [], cart: null});
+export const store = proxy<Store>({products: [], categories: [], me: null, cart: null});
 export const useStore = () => useSnapshot(store);

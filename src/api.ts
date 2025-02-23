@@ -20,7 +20,7 @@ export interface UserDetail {
 export interface User {
     uid: string;
     displayName: string;
-    emailAddress: string;
+    email: string;
     emailVerified: boolean;
     photoURL: string;
     phoneNumber: string;
