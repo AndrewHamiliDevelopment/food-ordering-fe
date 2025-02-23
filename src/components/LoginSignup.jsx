@@ -79,8 +79,8 @@ function LoginSignup({ isOpen, setIsOpen }) {
         </button>
 
         <img
-          src="mcdonalds.png"
-          alt="McDonald's Logo"
+          src="ninja.png"
+          alt=" Restourant Logo"
           style={{ width: "60px", display: "block", margin: "0 auto 10px" }}
         />
         <h2 style={{ fontSize: "20px", fontWeight: "bold", marginBottom: "5px" }}>

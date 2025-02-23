@@ -60,7 +60,7 @@ const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery, ap
             </IconButton>
             <img src="/ninja.png" alt="Restaurant Logo" style={{ height: "50px", width: "auto", borderRadius: "5px" }} />
             <Typography variant="h6" sx={{ ml: 1, fontWeight: "bold", color: "white", fontStyle: "italic"}}>
-              FastNinja
+              FFNinja
             </Typography>
           </Box>
 
@@ -92,10 +92,10 @@ const Header = ({ cart, setCart, setIsLoginOpen, isLoginOpen, setSearchQuery, ap
 
           {/* Navigation Links & Cart */}
           <Box sx={{ display: "flex", alignItems: "left", marginLeft: "350px" }}>
-            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/Home">
+            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/home">
               Home
             </Button>
-            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/Menu">
+            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/menu">
               Menu
             </Button>
             <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/profile">
