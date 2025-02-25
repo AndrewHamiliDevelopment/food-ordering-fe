@@ -64,6 +64,8 @@ function LoginSignup({ isOpen, setIsOpen }) {
   };
 
   return (
+
+    
     <div
       style={{
         position: "fixed",
@@ -81,7 +83,7 @@ function LoginSignup({ isOpen, setIsOpen }) {
     >
       <div
         style={{
-          background: "white",
+          background: "linear-gradient(to right, rgb(43, 45, 48), rgb(44, 175, 55))",
           width: "380px",
           padding: "20px",
           borderRadius: "12px",
@@ -114,7 +116,7 @@ function LoginSignup({ isOpen, setIsOpen }) {
         <h2 style={{ fontSize: "20px", fontWeight: "bold", marginBottom: "5px" }}>
           {isSignUp ? "Sign Up" : "Log In"}
         </h2>
-        <p>{isSignUp ? "Create a new account" : "Sign in to your account"}</p>
+        <p>{isSignUp ? "Create a new (ADMIN) account" : "Log in as existing (ADMIN)"}</p>
 
         {/* Form Fields */}
         <div>
@@ -237,6 +239,7 @@ function LoginSignup({ isOpen, setIsOpen }) {
         </div>
       </div>
     </div>
+
   );
 }
 

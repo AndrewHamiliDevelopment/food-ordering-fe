@@ -1,104 +1,80 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, Card, CardMedia, CardContent, Button, Tabs, Tab } from "@mui/material";
-import { useNavigate, useLocation } from "react-router-dom"; // useNavigate is the correct hook for navigation
-import { foodItems, categories } from "./data";
+import { Box, Typography, Grid, Card, CardMedia, CardContent, Tabs, Tab } from "@mui/material";
+import { useNavigate, useLocation } from "react-router-dom";
 
-
-const Menu = ({ addToCart }) => {
+const Menu = ({ foodItems = [] }) => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Extract categories and include "All" as a default category
+  const categories = ["All", ...new Set(foodItems.map(item => item.category))];
+
   const [selectedTab, setSelectedTab] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState(categories[0]); // Default category
+  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Parse the search query and category from the URL (from query string)
   useEffect(() => {
+    if (categories.length === 0) return;
+    
     const queryParams = new URLSearchParams(location.search);
     const categoryFromURL = queryParams.get("category");
     const searchFromURL = queryParams.get("search");
 
     if (categoryFromURL && categories.includes(categoryFromURL)) {
       setSelectedCategory(categoryFromURL);
-      const categoryIndex = categories.indexOf(categoryFromURL);
-      setSelectedTab(categoryIndex);
+      setSelectedTab(categories.indexOf(categoryFromURL));
     } else {
-      setSelectedCategory(categories[0]); // Default to the first category
+      setSelectedCategory(categories[0]);
       setSelectedTab(0);
     }
 
     if (searchFromURL) {
-      setSearchQuery(searchFromURL); // Set search query from URL
+      setSearchQuery(searchFromURL);
     }
-  }, [location.search]);
+  }, [location.search, foodItems]); // Re-run effect when foodItems change
 
-  // Filter food items based on selected category and search query
   const filteredItems = foodItems.filter((item) => {
-    const matchesCategory = item.category === selectedCategory;
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+    return (selectedCategory === "All" || item.category === selectedCategory) &&
+           item.name.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
     const category = categories[newValue];
     setSelectedCategory(category);
-    setSearchQuery("");  // Clear search when changing category
-
-    // Update the URL when category changes
+    setSearchQuery("");
     const params = new URLSearchParams(location.search);
     params.set("category", category);
-    params.delete("search"); // Remove the search query from URL
-    navigate.push({ search: params.toString() }); // Update the URL without reloading
-  };
-
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value); // Update search query state
-    const params = new URLSearchParams(location.search);
-    params.set("search", e.target.value); // Update the search query in the URL
-    navigate.push({ search: params.toString() }); // Update the URL without reloading
+    params.delete("search");
+    navigate({ search: params.toString() });
   };
 
   return (
     <Box sx={{ padding: "20px" }}>
-      {/* Food Categories Navigation */}
-      <Tabs
-        value={selectedTab}
-        onChange={handleTabChange}
-        variant="scrollable"
-        scrollButtons="auto"
-        sx={{
-          "& .MuiTab-root": { fontWeight: "bold", textTransform: "none", color: "black", fontSize: "14px", mx: 3.4 },
-          "& .Mui-selected": { color: "#FF5733" },
-          "& .MuiTabs-indicator": { backgroundColor: "#FF5733" },
-        }}
-      >
-        {categories.map((category, index) => (
-          <Tab key={index} label={category} />
-        ))}
-      </Tabs>
+      {/* Tabs for category selection */}
+      {categories.length > 0 && (
+        <Tabs
+          value={selectedTab}
+          onChange={handleTabChange}
+          variant="scrollable"
+          scrollButtons="auto"
+          sx={{
+            "& .MuiTab-root": { fontWeight: "bold", textTransform: "none", color: "white", fontSize: "14px", mx: 1,  },
+            "& .Mui-selected": { color: "lightgreen" },
+            "& .MuiTabs-indicator": { backgroundColor: "green" },
+          }}
+        >
+          {categories.map((category, index) => (
+            <Tab key={index} label={category} />
+          ))}
+        </Tabs>
+      )}
 
-      {/* Search Box */}
-      <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
+      <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2, color: "white", }}>
         {selectedCategory}
       </Typography>
-      <Box sx={{ marginBottom: "20px" }}>
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={handleSearchChange}
-          placeholder="Search for your favorites"
-          style={{
-            padding: "10px",
-            width: "100%",
-            borderRadius: "20px",
-            border: "1px solid #ccc",
-            fontSize: "16px",
-            display: "none",
-          }}
-        />
-      </Box>
 
-      {/* Food Items Display */}
+      {/* Food items grid */}
       <Grid container spacing={2} alignItems="stretch">
         {filteredItems.length === 0 ? (
           <Typography variant="h6" sx={{ width: "100%", textAlign: "center" }}>
@@ -108,32 +84,18 @@ const Menu = ({ addToCart }) => {
           filteredItems.map((item) => (
             <Grid item xs={12} sm={6} md={3} key={item.id}>
               <Card sx={{ boxShadow: 3, borderRadius: "10px", display: "flex", flexDirection: "column", height: "100%" }}>
-                <CardMedia component="img" height="140" image={item.image} alt={item.name} />
+                <CardMedia component="img" image={item.image} alt={item.name} sx={{ objectFit: "cover", aspectRatio: "16/9" }} />
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Typography variant="body1" sx={{ fontWeight: "bold" }}>{item.name}</Typography>
                   <Typography variant="body2" color="text.secondary">₱ {item.price}</Typography>
                 </CardContent>
-                <Box sx={{ padding: "10px" }}>
-                  <Button
-                    fullWidth
-                    sx={{ backgroundColor: "#32CD32", color: "black", fontWeight: "bold" }}
-                    onClick={() => {
-                      if (typeof addToCart === "function") {
-                        addToCart(item);
-                      } else {
-                        console.error("addToCart is not a function!");
-                      }
-                    }}
-                  >
-                    Order
-                  </Button>
-                </Box>
               </Card>
             </Grid>
           ))
         )}
       </Grid>
     </Box>
+    
   );
 };
 

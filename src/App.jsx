@@ -1,47 +1,32 @@
-import React, { useState } from "react"; // <-- Added useState import
+import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 import Header from "./components/Header";
 import LoginSignup from "./components/LoginSignup";
-import Home from "./components/Home";
 import Menu from "./components/Menu";
-import Cart from "./components/Cart";
-import Checkout from "./components/Checkout";
 import Profile from "./components/Profile";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
-  const [cart, setCart] = useState([]); // <-- using useState
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [products, setProducts] = useState([
+    { id: 1, name: "Pizza", price: 250, category: "Fast Food", image: "pizza.jpg" },
+    { id: 2, name: "Burger", price: 150, category: "Fast Food", image: "burger.jpg" },
+  ]);
 
-  const addToCart = (item) => {
-    setCart((prevCart) => {
-      const existingItem = prevCart.find((cartItem) => cartItem.id === item.id);
-      if (existingItem) {
-        const updatedCart = prevCart.map((cartItem) =>
-          cartItem.id === item.id
-            ? { ...cartItem, quantity: cartItem.quantity + 1 }
-            : cartItem
-        );
-        return updatedCart;
-      } else {
-        const newCart = [...prevCart, { ...item, quantity: 1 }];
-        return newCart;
-      }
-    });
+  const addProduct = (newProduct) => {
+    setProducts((prevProducts) => [...prevProducts, newProduct]);
   };
 
   return (
     <Router>
-      <Header cart={cart} isLoginOpen={isLoginOpen} setIsLoginOpen={setIsLoginOpen} setSearchQuery={setSearchQuery} />
+      <Header isLoginOpen={isLoginOpen} setIsLoginOpen={setIsLoginOpen} setSearchQuery={setSearchQuery} />
 
       <main style={{ filter: isLoginOpen ? "blur(3px)" : "none", pointerEvents: isLoginOpen ? "none" : "auto" }}>
         <Routes>
-          <Route path="/home" element={<Home />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/menu" element={<Menu addToCart={addToCart} searchQuery={searchQuery} />} />
-          <Route path="/cart" element={<Cart cartItems={cart} setCart={setCart} />} />
-          <Route path="/checkout" element={<Checkout cart={cart} />} />
+        <Route path="/profile" element={<Profile products={products} addProduct={addProduct} />} />
+        <Route path="/menu" element={<Menu foodItems={products} />} />
         </Routes>
       </main>
 
