@@ -23,7 +23,7 @@ const Menu = ({ addToCart }) => {
       setSelectedCategory(categoryFromURL);
       setSelectedTab(categoryIndex);
     } else {
-      setSelectedCategory(store.categories[0].name); // Default to the first category
+      setSelectedCategory(store.categories.length > 0 ? store.categories[0].name: ''); // Default to the first category
       setSelectedTab(0);
     }
 
