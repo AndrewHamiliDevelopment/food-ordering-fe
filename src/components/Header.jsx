@@ -24,6 +24,7 @@ const Header = ({ setIsLoginOpen, isLoginOpen, setSearchQuery, api, onUpdateQuan
   const location = useLocation();
   const navigate = useNavigate();
   const snap = useStore();
+  const [searchTimeout, setSearchTimeout] = React.useState(null);
 
   const handleCartToggle = () => {
     setIsCartOpen(!isCartOpen);
@@ -32,7 +33,13 @@ const Header = ({ setIsLoginOpen, isLoginOpen, setSearchQuery, api, onUpdateQuan
   // Handle search input change and redirect to Menu page with search query and category
   const handleSearchChange = (e) => {
     const newSearchQuery = e.target.value;
-    setSearchQuery(newSearchQuery);
+
+    
+    if(searchTimeout !== null) {
+      clearTimeout(searchTimeout);
+    }
+    const timeout = setTimeout(() => {
+      setSearchQuery(newSearchQuery);
     
 
     // Find the category where the item exists
@@ -48,6 +55,8 @@ const Header = ({ setIsLoginOpen, isLoginOpen, setSearchQuery, api, onUpdateQuan
       // If no matching item is found, stay on the Home page or display a message
       console.log("No matching item found!");
     }
+    }, 750)
+    setSearchTimeout(timeout);
   };
 
   React.useEffect(() => {console.log('snap cart', snap.cart)}, [snap.cart])
