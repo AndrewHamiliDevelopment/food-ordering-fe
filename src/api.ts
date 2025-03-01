@@ -83,6 +83,12 @@ export interface Address {
     contactNumber: string;
 }
 
+export interface OrderCreateDto {
+    cartId: number;
+    paymentMethodId: number;
+    addressId: number;
+}
+
 export class Api {
     private readonly axiosInstance: AxiosInstance;
     constructor(baseURL: string, private readonly user?: firebase.User) {
@@ -148,5 +154,11 @@ export class Api {
             throw new Error('Firebase user not available');
         }
         return await this.axiosInstance.get('/v1/address', {headers: {Authorization: `Bearer ${await this.user.getIdToken()}`}})
+    }
+    createOrder = async (dto: OrderCreateDto) => {
+        if(!this.user) {
+            throw new Error('Firebase user not available');
+        }
+        return await this.axiosInstance.post('/v1/orders', dto, {headers: {Authorization: `Bearer ${await this.user.getIdToken()}`}})
     }
 }

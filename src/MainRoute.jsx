@@ -125,7 +125,7 @@ const MainRoute = ({ user }) => {
             path="/cart"
             element={<Cart cartItems={store.cart ? store.cart.cartItems: []} setCart={setCart} onRemoveItem={removeFromCart} onUpdateQuantity={addToCart} />}
           />
-          <Route path="/checkout" element={<Checkout cart={store.cart} />} />
+          <Route path="/checkout" element={<Checkout api={api} />} />
           <Route path="/profile" element={<Profile />} />
         </Routes>)}
       </main>

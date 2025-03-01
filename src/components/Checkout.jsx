@@ -12,7 +12,7 @@ import {useFormik} from 'formik';
 import { borderRadius } from '@mui/system';
 import { orderSchema } from '../validations';
 
-const Checkout = () => {
+const Checkout = ({api}) => {
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -24,6 +24,8 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState('');
   const [position, setPosition] = useState([14.676, 121.043]); // Default to Manila
   const [summary, setSummary] = React.useState({subTotal: 0, grandTotal: 0});
+
+  const {addresses, paymentMethods, cart} = store;
   
   const markerIcon = new L.Icon({
     iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
@@ -42,6 +44,24 @@ const Checkout = () => {
     return <Marker position={position} draggable icon={markerIcon} />;
   }
 
+  const formik = useFormik({
+    initialValues: {addressId: null, cartId: null, paymentMethodId: null},
+    validationSchema: orderSchema,
+    onSubmit: async (values) => {
+    console.log("🚀 ~ Checkout ~ values:", values)
+    const {cartId, addressId, paymentMethodId} = values;
+    const dto = {cartId, addressId, paymentMethodId};
+    api.createOrder(dto).then(async (res) => {
+      console.log("🚀 ~ api.createOrder ~ res:", res);
+      await api.getCart().then((res) => store.cart = res.data);
+      navigate('/')
+    })
+    .catch((error) => {
+      console.error('error', error);
+    })
+    },
+  })
+
   React.useEffect(() => {
     console.log('useEffect', store.cart);
     if(store.cart.cartItems !== null) {
@@ -52,25 +72,25 @@ const Checkout = () => {
       const grandTotal = deliveryFee + subTotal;
       setSummary({subTotal, grandTotal});
     }
+    formik.setFieldValue('cartId', cart.id)
   }, []);
 
-  const formik = useFormik({
-    initialValues: {addressId: null, cartId: null, paymentMethodId: null},
-    validationSchema: orderSchema,
-    onSubmit: (values) => {
-    console.log("🚀 ~ Checkout ~ values:", values)
-    }
-  })
+  React.useEffect(() => {
+    console.log('formik');
+  }, [formik]);
+
+  
 
   const selectAddress = (id) => {
     if(selectedAddressId === id) {
       setSelectedAddressId(0);
+      formik.setFieldValue('addressId', id);
     } else {
       setSelectedAddressId(id);
     }
   }
 
-  const {addresses, paymentMethods, cart} = store;
+  
   
   return (
     <Box sx={{ maxWidth: 600, margin: 'auto', padding: 2 }}>
@@ -111,7 +131,7 @@ const Checkout = () => {
       
       {/* Payment Method */}
       <Typography variant="h6" sx={{ fontWeight: 'bold', mt: 3 }}>Payment Method</Typography>
-      <Select id="paymentMethod" error={formik.touched.paymentMethodId && Boolean(formik.errors.paymentMethodId)} fullWidth value={paymentMethod} id='paymentMethodId' onChange={formik.handleChange} onBlur={formik.handleBlur} sx={{ mt: 1 }}>
+      <Select name="paymentMethodId" error={formik.touched.paymentMethodId && Boolean(formik.errors.paymentMethodId)} fullWidth value={paymentMethod} id='paymentMethodId' onChange={formik.handleChange} onBlur={formik.handleBlur} sx={{ mt: 1 }}>
         {paymentMethods.map((pm) => {
           return (<MenuItem key={pm.id} value={pm.id}>{pm.name}</MenuItem>);
         })}
@@ -130,7 +150,7 @@ const Checkout = () => {
       <Typography variant="h6" sx={{ fontWeight: 'bold', mt: 2 }}>Total: {formatNumberCurrency(summary.grandTotal)}</Typography>
       
       {/* Confirm Order */}
-      <Button variant="contained" fullWidth sx={{ backgroundColor: '#FFC300', color: 'black', mt: 3 }} type={'submit'}>Place Order</Button>
+     <button type="submit">Place Order</button>
       </form>
     </Box>
   );
