@@ -34,7 +34,7 @@ const MainRoute = ({ user }) => {
     if(user && user !== null) {
       requests.push(api.getMe());
       requests.push(api.getCart());
-
+      requests.push(api.getAddresses());
     }
 
     const getResponses = async () => {
@@ -47,6 +47,7 @@ const MainRoute = ({ user }) => {
       if(responses.length >= 5) {
         store.me = responses[3].data;
         store.cart = responses[4].data;
+        store.addresses = responses[5].data;
       }
       setIsReady(true);
       } catch (error) {

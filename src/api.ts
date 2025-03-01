@@ -73,6 +73,16 @@ export interface PaymentMethod {
     enabled: boolean;
 }
 
+export interface Address {
+    line1: string;
+    line2: string;
+    cityMunicipality: string;
+    province: string;
+    zipCode: string;
+    recipientName: string;
+    contactNumber: string;
+}
+
 export class Api {
     private readonly axiosInstance: AxiosInstance;
     constructor(baseURL: string, private readonly user?: firebase.User) {
@@ -131,5 +141,12 @@ export class Api {
         }
         const { productId } = props;
         return await this.axiosInstance.delete(`v1/cart/${productId}`, {headers: {Authorization: `Bearer ${await this.user.getIdToken()}`}})
+    }
+
+    getAddresses = async (): Promise<AxiosResponse<Address>> => {
+        if(!this.user) {
+            throw new Error('Firebase user not available');
+        }
+        return await this.axiosInstance.get('/v1/address', {headers: {Authorization: `Bearer ${await this.user.getIdToken()}`}})
     }
 }

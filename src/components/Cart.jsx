@@ -35,13 +35,13 @@ const Cart = ({ onRemoveItem, onUpdateQuantity }) => {
           {store.cart.cartItems.map((item) => (
             <Box key={item.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', my: 1, padding: 1, borderRadius: 2 }}> 
               <Box sx={{ display: 'flex', alignItems: 'center', gap: -4 }}>
-                {item.quantity ===  1 ? (<IconButton size="small" color="error" onClick={() => onRemoveItem({productId: item.product.id})}>
+                {item.quantity ===  1 ? (<IconButton size="small" color="error" onClick={() => onRemoveItem({productId: item.product.product.id})}>
                   <DeleteIcon fontSize="small" />
-                </IconButton>): (<IconButton size="small" onClick={() => onRemoveItem({productId: item.product.id})} disabled={item.quantity <= 1}>
+                </IconButton>): (<IconButton size="small" onClick={() => onRemoveItem({productId: item.product.product.id})} disabled={item.quantity <= 1}>
                   <RemoveIcon fontSize="small" sx={{ color: '#000' }} />
                 </IconButton>)}
                 <Typography sx={{ mx: 1, fontWeight: 'bold', color: '#000', fontSize: '14px' }}>{item.quantity}</Typography>
-                <IconButton size="small" onClick={() => onUpdateQuantity({productId: item.product.id})}>
+                <IconButton size="small" onClick={() => onUpdateQuantity({productId: item.product.product.id})}>
                   <AddIcon fontSize="small" sx={{ color: '#000' }} />
                 </IconButton>
               </Box>
