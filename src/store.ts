@@ -5,6 +5,7 @@ import { Product, Category, Cart, User, PaymentMethod, Address, Paginated, Order
 
 export interface Store {
     products: Product[];
+    paginatedProducts: Paginated<Product>;
     categories: Category[];
     paymentMethods: PaymentMethod[];
     me: User | null;
@@ -15,5 +16,5 @@ export interface Store {
 
 const defaultPaginated = {data: [], meta: {currentPage: 0, itemsPerPage: 0, totalItems: 0, totalPages: 0}};
 
-export const store = proxy<Store>({products: [], categories: [], paymentMethods: [], me: null, cart: null, addresses: [], orders: defaultPaginated});
+export const store = proxy<Store>({products: [], paginatedProducts: defaultPaginated, categories: [], paymentMethods: [], me: null, cart: null, addresses: [], orders: defaultPaginated});
 export const useStore = () => useSnapshot(store);

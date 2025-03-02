@@ -44,6 +44,7 @@ const MainRoute = ({ user }) => {
         const responses = await Promise.all(requests);
         console.log("🚀 ~ getResponses ~ responses:", responses)
         store.products = responses[0].data.data;
+        store.paginatedProducts = responses[0].data;
         store.categories = responses[1].data;
         store.paymentMethods = responses[2].data.data;
       if(responses.length >= 5) {
@@ -121,7 +122,7 @@ const MainRoute = ({ user }) => {
           <Route path="Home" element={<Navigate to="/" />} />
           <Route
             path="/menu"
-            element={<Menu addToCart={addToCart} searchQuery={searchQuery} />}
+            element={<Menu addToCart={addToCart} searchQuery={searchQuery} api={api} />}
           />
           <Route
             path="/cart"
