@@ -1,6 +1,6 @@
 import { Api } from "./api";
 import React, { useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { firebaseSignInWithEmailAndPassword } from "./shared";
 import Home from "./components/Home";
 import Menu from "./components/Menu";
@@ -11,6 +11,7 @@ import LoginSignup from "./components/LoginSignup";
 import {store, useStore} from './store';
 import {each} from 'lodash';
 import Profile from "./components/Profile";
+import MyAccount from "./components/MyAccount";
 
 const MainRoute = ({ user }) => {
 
@@ -35,6 +36,7 @@ const MainRoute = ({ user }) => {
       requests.push(api.getMe());
       requests.push(api.getCart());
       requests.push(api.getAddresses());
+      requests.push(api.getOrders({}))
     }
 
     const getResponses = async () => {
@@ -48,6 +50,7 @@ const MainRoute = ({ user }) => {
         store.me = responses[3].data;
         store.cart = responses[4].data;
         store.addresses = responses[5].data;
+        store.orders = responses[6].data;
       }
       setIsReady(true);
       } catch (error) {
@@ -91,7 +94,6 @@ const MainRoute = ({ user }) => {
         setIsLoginOpen(true);
       }
     }
-    window.alert(`Hello ${user.email}, this function is not yet implemented, coming soon!`);
   }
   
 
@@ -127,6 +129,7 @@ const MainRoute = ({ user }) => {
           />
           <Route path="/checkout" element={<Checkout api={api} />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/account" element={<MyAccount api={api} />} />
         </Routes>)}
       </main>
 

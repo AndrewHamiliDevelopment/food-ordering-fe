@@ -9,19 +9,13 @@ import './Profile.css';
 import {store} from '../store';
 
 const Profile = () => {
-  const [me, setMe] = React.useState(store.me)
-    const [selectedGender, setSelectedGender] = useState("");
+
+  const {me, addresses} = store;
+
+  const [selectedGender, setSelectedGender] = useState("");
   const [selectedSection, setSelectedSection] = useState('Personal Information');
   const [profileImage, setProfileImage] = useState(null);
   const [addressDetails, setAddressDetails] = useState("");
-  const [addresses, setAddresses] = useState([
-    {
-      id: 1,
-      title: "52-C, Maningning Street",
-      details: "52-C, Maningning Street, Teacher’s Village East, Teachers' Village West, Quezon City, Metro Manila, 1101, Philippines",
-      position: [14.6488, 121.0509]
-    }
-  ]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState([14.6488, 121.0509]);
   const [editingAddressId, setEditingAddressId] = useState(null);
@@ -112,7 +106,7 @@ const Profile = () => {
               <FaTrash className="delete-icon" onClick={handleDeleteImage} />
             </div>
           </div>
-          <h2>Jhon Doe</h2>
+          <h2></h2>
         </div>
         <nav>
           <ul>
@@ -174,8 +168,10 @@ const Profile = () => {
               {addresses.map((address) => (
                 <div key={address.id} className="address-card">
                   <div className="address-details">
-                    <h3>{address.title}</h3>
-                    <p>{address.details}</p>
+                    <h3>{address.province}</h3>
+                    <p>{address.line1}</p>
+                    <p>{address.line2}</p>
+                    <p>{address.cityMunicipality}</p>
                   </div>
                   <button className="edit-button" onClick={() => handleEditAddress(address.id)}>Edit</button>
                   <button className="save-address">Save Address</button>

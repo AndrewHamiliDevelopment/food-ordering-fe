@@ -83,6 +83,14 @@ export interface Address {
     contactNumber: string;
 }
 
+export interface Order {
+    id: number;
+    cart: Cart;
+    address: Address;
+    paymentMethod: PaymentMethod;
+    status: string;
+}
+
 export interface OrderCreateDto {
     cartId: number;
     paymentMethodId: number;
@@ -160,5 +168,19 @@ export class Api {
             throw new Error('Firebase user not available');
         }
         return await this.axiosInstance.post('/v1/orders', dto, {headers: {Authorization: `Bearer ${await this.user.getIdToken()}`}})
+    }
+    getOrders = async (props: {page?: number; size?: number}) => {
+        const {page, size} = props;
+        if(!this.user) {
+            throw new Error('Firebase user not available');
+        }
+        const params = new URLSearchParams();
+        if(page) {
+            params.append('page', `${page}`)
+        }
+        if(size) {
+            params.append('size', `${size}`);
+        }
+        return await this.axiosInstance.get('/v1/orders', {headers: {Authorization: `Bearer ${await this.user.getIdToken()}`}, params});
     }
 }

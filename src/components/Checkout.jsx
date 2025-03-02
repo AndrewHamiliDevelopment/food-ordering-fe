@@ -35,6 +35,7 @@ const Checkout = ({ api }) => {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [position, setPosition] = useState([14.676, 121.043]); // Default to Manila
   const [summary, setSummary] = React.useState({ subTotal: 0, grandTotal: 0 });
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const { addresses, paymentMethods, cart } = store;
 
@@ -63,6 +64,7 @@ const Checkout = ({ api }) => {
       console.log("🚀 ~ Checkout ~ values:", values);
       const { cartId, addressId, paymentMethodId } = values;
       const dto = { cartId, addressId, paymentMethodId };
+      setIsSubmitting(true);
       api
         .createOrder(dto)
         .then(async (res) => {
@@ -72,7 +74,10 @@ const Checkout = ({ api }) => {
         })
         .catch((error) => {
           console.error("error", error);
-        });
+        })
+        .finally(() => {
+          setIsSubmitting(false);
+        })
     },
   });
 
@@ -99,9 +104,10 @@ const Checkout = ({ api }) => {
   const selectAddress = (id) => {
     if (selectedAddressId === id) {
       setSelectedAddressId(0);
-      formik.setFieldValue("addressId", id);
+      formik.setFieldValue('addressId', 0);
     } else {
       setSelectedAddressId(id);
+      formik.setFieldValue('addressId', id);
     }
   };
 
@@ -116,41 +122,42 @@ const Checkout = ({ api }) => {
         <Typography variant="h6" sx={{ fontWeight: "bold" }}>
           Contact Details
         </Typography>
-        <Box sx={{ display: "flex", gap: 2, mt: 2, mb: 2 }}>
+        <Box sx={{ gap: 2, mt: 2, mb: 2, border: formik.errors.addressId ? 1: 0, borderRadius: Boolean(formik.errors.addressId) ? 1: 0, borderColor: Boolean(formik.errors.addressId) ? 'red': '' }}>
           <Form.Group>
-          <ListGroup as="li">
-            {addresses.map((address, index) => {
-              const {
-                id,
-                line1,
-                line2,
-                zipCode,
-                recipientName,
-                contactNumber,
-                province,
-                cityMunicipality,
-              } = address;
-              return (
-                <ListGroup.Item
-                  active={selectedAddressId === id}
-                  onClick={() => selectAddress(id)}
-                  key={index}
-                >
-                  <Typography variant="subtitle1">{province}</Typography>
-                  <Typography variant="body1">{line1}</Typography>
-                  <Typography variant="body1">{line2}</Typography>
-                  <Typography variant="body1">{cityMunicipality}</Typography>
-                  <Typography variant="body1">{zipCode}</Typography>
-                  <br />
-                  <Typography variant="body2">{recipientName}</Typography>
-                  <Typography variant="body2">{contactNumber}</Typography>
-                </ListGroup.Item>
-              );
-            })}
-          </ListGroup>
-          <Form.Control.Feedback type="invalid">
-            {formik.errors.addressId}
-          </Form.Control.Feedback>
+          <Form.Control hidden isInvalid={Boolean(formik.errors.addressId)} type="text" />
+            <Form.Control.Feedback type="invalid">
+              {formik.errors.addressId}
+            </Form.Control.Feedback>
+            <ListGroup>
+              {addresses.map((address, index) => {
+                const {
+                  id,
+                  line1,
+                  line2,
+                  zipCode,
+                  recipientName,
+                  contactNumber,
+                  province,
+                  cityMunicipality,
+                } = address;
+                return (
+                  <ListGroup.Item
+                    active={selectedAddressId === id}
+                    onClick={() => selectAddress(id)}
+                    key={index}
+                  >
+                    <Typography variant="subtitle1">{province}</Typography>
+                    <Typography variant="body1">{line1}</Typography>
+                    <Typography variant="body1">{line2}</Typography>
+                    <Typography variant="body1">{cityMunicipality}</Typography>
+                    <Typography variant="body1">{zipCode}</Typography>
+                    <br />
+                    <Typography variant="body2">{recipientName}</Typography>
+                    <Typography variant="body2">{contactNumber}</Typography>
+                  </ListGroup.Item>
+                );
+              })}
+            </ListGroup>
           </Form.Group>
         </Box>
 
@@ -206,7 +213,7 @@ const Checkout = ({ api }) => {
         </Typography>
 
         {/* Confirm Order */}
-        <button type="submit">Place Order</button>
+        <Button disabled={isSubmitting} variant="contained" fullWidth sx={{ backgroundColor: '#FFC300', color: 'black', mt: 3 }} type={'submit'}>Place Order</Button>
       </form>
     </Box>
   );

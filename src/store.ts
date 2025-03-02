@@ -1,6 +1,6 @@
 import {proxy, useSnapshot} from 'valtio';
 
-import { Product, Category, Cart, User, PaymentMethod, Address } from './api';
+import { Product, Category, Cart, User, PaymentMethod, Address, Paginated, Order } from './api';
 
 
 export interface Store {
@@ -10,7 +10,10 @@ export interface Store {
     me: User | null;
     cart: Cart | null;
     addresses: Address[];
+    orders: Paginated<Order>
 }
 
-export const store = proxy<Store>({products: [], categories: [], paymentMethods: [], me: null, cart: null, addresses: []});
+const defaultPaginated = {data: [], meta: {currentPage: 0, itemsPerPage: 0, totalItems: 0, totalPages: 0}};
+
+export const store = proxy<Store>({products: [], categories: [], paymentMethods: [], me: null, cart: null, addresses: [], orders: defaultPaginated});
 export const useStore = () => useSnapshot(store);

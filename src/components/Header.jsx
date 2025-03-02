@@ -117,7 +117,11 @@ const Header = ({ setIsLoginOpen, isLoginOpen, setSearchQuery, api, onUpdateQuan
             <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/profile">
               Profile
             </Button>
-            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} onClick={() => setIsLoginOpen(true)}>
+            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} onClick={() => {
+              if(api.user && api.user !== null) {
+                navigate('/account')
+              }
+            }}>
               My Account
             </Button>
           </Box>

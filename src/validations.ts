@@ -2,7 +2,7 @@ import { number, object } from 'yup';
 
 
 export const orderSchema = object({
-    addressId: number().required('Please select an address first'),
+    addressId: number().min(1).required('Please select an address'),
     cartId: number().required('Please select a cart'),
     paymentMethodId: number().required('Please select a Payment Method'),
 });
