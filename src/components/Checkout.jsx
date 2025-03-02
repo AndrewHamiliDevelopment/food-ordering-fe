@@ -6,7 +6,6 @@ import {
   Typography,
   TextField,
   Button,
-  Select,
   MenuItem,
   IconButton,
   FormHelperText,
@@ -22,7 +21,7 @@ import { formatNumberCurrency } from "../shared";
 import { useFormik } from "formik";
 import { borderRadius } from "@mui/system";
 import { orderSchema } from "../validations";
-import { ListGroup } from "react-bootstrap";
+import { ListGroup, ListGroupItem, Form } from "react-bootstrap";
 
 const Checkout = ({ api }) => {
   const navigate = useNavigate();
@@ -94,7 +93,7 @@ const Checkout = ({ api }) => {
   }, []);
 
   React.useEffect(() => {
-    console.log("formik");
+    console.log("formik", formik);
   }, [formik]);
 
   const selectAddress = (id) => {
@@ -117,24 +116,42 @@ const Checkout = ({ api }) => {
         <Typography variant="h6" sx={{ fontWeight: "bold" }}>
           Contact Details
         </Typography>
-        <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
-          <ListGroup>
+        <Box sx={{ display: "flex", gap: 2, mt: 2, mb: 2 }}>
+          <Form.Group>
+          <ListGroup as="li">
             {addresses.map((address, index) => {
-              return(<div key={index}>
-                <Typography variant="subtitle1">{address.province}</Typography>
-                <Typography variant="body1">{address.line1}</Typography>
-                <Typography variant="body1">{address.line2}</Typography>
-                <Typography variant="body1">
-                  {address.cityMunicipality}
-                </Typography>
-                <Typography variant="body1">{address.zipCode}</Typography>
-                <br />
-                <Typography variant="body2">{address.recipientName}</Typography>
-                <Typography variant="body2">{address.contactNumber}</Typography>
-              </div>)
+              const {
+                id,
+                line1,
+                line2,
+                zipCode,
+                recipientName,
+                contactNumber,
+                province,
+                cityMunicipality,
+              } = address;
+              return (
+                <ListGroup.Item
+                  active={selectedAddressId === id}
+                  onClick={() => selectAddress(id)}
+                  key={index}
+                >
+                  <Typography variant="subtitle1">{province}</Typography>
+                  <Typography variant="body1">{line1}</Typography>
+                  <Typography variant="body1">{line2}</Typography>
+                  <Typography variant="body1">{cityMunicipality}</Typography>
+                  <Typography variant="body1">{zipCode}</Typography>
+                  <br />
+                  <Typography variant="body2">{recipientName}</Typography>
+                  <Typography variant="body2">{contactNumber}</Typography>
+                </ListGroup.Item>
+              );
             })}
           </ListGroup>
-          
+          <Form.Control.Feedback type="invalid">
+            {formik.errors.addressId}
+          </Form.Control.Feedback>
+          </Form.Group>
         </Box>
 
         {/* Map Selection */}
@@ -149,28 +166,22 @@ const Checkout = ({ api }) => {
         <Typography variant="h6" sx={{ fontWeight: "bold", mt: 3 }}>
           Payment Method
         </Typography>
-        <Select
-          name="paymentMethodId"
-          error={
-            formik.touched.paymentMethodId &&
-            Boolean(formik.errors.paymentMethodId)
-          }
-          fullWidth
-          value={paymentMethod}
-          id="paymentMethodId"
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          sx={{ mt: 1 }}
-        >
-          {paymentMethods.map((pm) => {
-            return (
-              <MenuItem key={pm.id} value={pm.id}>
-                {pm.name}
-              </MenuItem>
-            );
-          })}
-        </Select>
-        <FormHelperText>Payment Method</FormHelperText>
+        <Form.Group>
+          <Form.Select
+            isInvalid={Boolean(formik.errors.paymentMethodId)}
+            onChange={formik.handleChange}
+            id="paymentMethodId"
+            onBlur={formik.handleBlur}
+          >
+            <option hidden>SELECT Payment Method</option>
+            {paymentMethods.map((pm, index) => (
+              <option value={pm.id}>{pm.name}</option>
+            ))}
+          </Form.Select>
+          <Form.Control.Feedback type="invalid">
+            {formik.errors.paymentMethodId}
+          </Form.Control.Feedback>
+        </Form.Group>
         {/* {formik.touched.name && Boolean(formik.errors.name)  */}
 
         {/* Order Summary */}

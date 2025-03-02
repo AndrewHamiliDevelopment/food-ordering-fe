@@ -3,6 +3,8 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import Appp from './Appp'
 
+import 'bootstrap/dist/css/bootstrap.min.css'
+
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error("Root element not found!");
 
