@@ -122,14 +122,17 @@ export class Api {
         return await this.axiosInstance.get('/v1/payment-method', { params })
     }
 
-    getProducts = async (props: {page?: number; size?: number}): Promise<AxiosResponse<Paginated<Product>>> => {
-        const { page, size } = props;
+    getProducts = async (props: {page?: number; limit?: number, search?: string}): Promise<AxiosResponse<Paginated<Product>>> => {
+        const { page, limit, search } = props;
         const params = new URLSearchParams();
         if(page) {
             params.append('page', `${page}`);
         }
-        if(size) {
-            params.append('size', `${size}`);
+        if(limit) {
+            params.append('size', `${limit}`);
+        }
+        if(search) {
+            params.append('search', search)
         }
         return await this.axiosInstance.get('/v1/products', {params})
     }
@@ -169,8 +172,8 @@ export class Api {
         }
         return await this.axiosInstance.post('/v1/orders', dto, {headers: {Authorization: `Bearer ${await this.user.getIdToken()}`}})
     }
-    getOrders = async (props: {page?: number; size?: number}) => {
-        const {page, size} = props;
+    getOrders = async (props: {page?: number; limit?: number}) => {
+        const {page, limit} = props;
         if(!this.user) {
             throw new Error('Firebase user not available');
         }
@@ -178,8 +181,8 @@ export class Api {
         if(page) {
             params.append('page', `${page}`)
         }
-        if(size) {
-            params.append('size', `${size}`);
+        if(limit) {
+            params.append('limit', `${limit}`);
         }
         return await this.axiosInstance.get('/v1/orders', {headers: {Authorization: `Bearer ${await this.user.getIdToken()}`}, params});
     }

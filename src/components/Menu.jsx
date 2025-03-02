@@ -3,17 +3,19 @@ import {
   Box,
   Typography,
   Grid,
-  Card,
   CardMedia,
   CardContent,
   Button,
   Tabs,
   Tab,
+  Divider,
 } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom"; // useNavigate is the correct hook for navigation
 import { store } from "../store";
 import { formatNumberCurrency } from "../shared";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { filter } from "lodash";
+import { Card, Col, Container, Dropdown, Row } from "react-bootstrap";
 
 const Menu = ({ addToCart, api }) => {
   const location = useLocation();
@@ -22,6 +24,8 @@ const Menu = ({ addToCart, api }) => {
   const [selectedCategory, setSelectedCategory] = useState(""); // Default category
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = React.useState(false);
+  const [filteredProducts, setFilteredProducts] = React.useState([]);
+  const [page, setPage] = React.useState(1);
 
   // Parse the search query and category from the URL (from query string)
   // useEffect(() => {
@@ -71,20 +75,39 @@ const Menu = ({ addToCart, api }) => {
   // };
 
   React.useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const search = params.get("search");
     setIsLoading(true);
+    setSearchQuery(params.get("search"));
     api
-      .getProducts({})
-      .then((res) => res.data)
+      .getProducts({ search })
+      .then((res) => {
+        store.products = res.data.data;
+        store.paginatedProducts = res.data;
+      })
       .catch((error) => console.error("error", error))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [location.search]);
+
+  React.useEffect(() => {
+    //filter product based on selected tab
+    setFilteredProducts(
+      store.paginatedProducts.data.filter(
+        (product) => product.category.id === store.categories[selectedTab].id
+      )
+    );
+  }, [store.paginatedProducts, selectedTab]);
+
+  const handleTabChange = (e, value) => {
+    setSelectedTab(value);
+  };
 
   return (
     <Box sx={{ padding: "20px" }}>
       {/* Food Categories Navigation */}
       <Tabs
         value={selectedTab}
-        // onChange={handleTabChange}
+        onChange={handleTabChange}
         variant="scrollable"
         scrollButtons="auto"
         sx={{
@@ -126,93 +149,30 @@ const Menu = ({ addToCart, api }) => {
 
       {/* Food Items Display */}
       <Grid container spacing={2} alignItems="stretch">
-        {store.paginatedProducts.data.length === 0 ? (
+        {filteredProducts.length === 0 ? (
           <Typography variant="h6" sx={{ width: "100%", textAlign: "center" }}>
-            No items found for your search.
+            {`No "${searchQuery}" products matched in this category`}
           </Typography>
         ) : (
-          <Grid item xs={12} sm={6} md={3}>
-            <InfiniteScroll
-              dataLength={store.paginatedProducts.data.length}
-              hasMore={
-                store.paginatedProducts.meta.totalPages >
-                store.paginatedProducts.meta.currentPage
-              }
-            >
-              {store.paginatedProducts.data.map((item, index) => (
-                <Card
-                  key={index}
-                  sx={{
-                    boxShadow: 3,
-                    borderRadius: "10px",
-                    display: "flex",
-                    flexDirection: "column",
-                    height: "100%",
-                  }}
-                >
-                  <CardMedia
-                    component="img"
-                    height="140"
-                    image={item.thumbnail.urls.file}
-                    alt={item.name}
-                  />
-                  <CardContent sx={{ flexGrow: 1 }}>
-                    <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-                      {item.name}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {formatNumberCurrency(Number(item.price))}
-                    </Typography>
-                  </CardContent>
-                  <Box sx={{ padding: "10px" }}>
-                    <Button
-                      fullWidth
-                      sx={{
-                        backgroundColor: "#32CD32",
-                        color: "black",
-                        fontWeight: "bold",
-                      }}
-                      onClick={() => {
-                        if (typeof addToCart === "function") {
-                          addToCart({ productId: item.id });
-                        } else {
-                          console.error("addToCart is not a function!");
-                        }
-                      }}
-                    >
-                      Order
-                    </Button>
-                  </Box>
-                </Card>
-              ))}
-            </InfiniteScroll>
-          </Grid>
-          // filteredItems.map((item) => (
-          //   <Grid item xs={12} sm={6} md={3} key={item.id}>
-          //     <Card sx={{ boxShadow: 3, borderRadius: "10px", display: "flex", flexDirection: "column", height: "100%" }}>
-          //       <CardMedia component="img" height="140" image={item.thumbnail.urls.file} alt={item.name} />
-          //       <CardContent sx={{ flexGrow: 1 }}>
-          //         <Typography variant="body1" sx={{ fontWeight: "bold" }}>{item.name}</Typography>
-          //         <Typography variant="body2" color="text.secondary">{formatNumberCurrency(Number(item.price))}</Typography>
-          //       </CardContent>
-          //       <Box sx={{ padding: "10px" }}>
-          //         <Button
-          //           fullWidth
-          //           sx={{ backgroundColor: "#32CD32", color: "black", fontWeight: "bold" }}
-          //           onClick={() => {
-          //             if (typeof addToCart === "function") {
-          //               addToCart({productId: item.id});
-          //             } else {
-          //               console.error("addToCart is not a function!");
-          //             }
-          //           }}
-          //         >
-          //           Order
-          //         </Button>
-          //       </Box>
-          //     </Card>
-          //   </Grid>
-          // ))
+          <Container fluid>
+            <Row>
+              <InfiniteScroll dataLength={filteredProducts.length}>
+                {filteredProducts.map((item, index) => (
+                  <Col>
+                  <Card onClick={() => {
+                    const products = [];
+                    for(let i = 0; i < 20; i++) {
+                    products.push(item);
+                    setFilteredProducts(products);
+                    }
+                  }}>
+                    <Card.Img variant="top" src={item.thumbnail.urls.file}></Card.Img>
+                  </Card>
+                  </Col>
+                ))}
+              </InfiniteScroll>
+            </Row>
+          </Container>
         )}
       </Grid>
     </Box>

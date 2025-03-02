@@ -11,7 +11,7 @@ interface Props {
 const MyAccount: React.FC<Props> = (props: Props) => {
   const { api } = props;
   const [page, setPage] = React.useState(1);
-  const [size, setSize] = React.useState(10);
+  const [limit, setLimit] = React.useState(10);
   const [isLoading, setIsLoading] = React.useState(false);
   const columns: TableColumn<Order>[] = [
     {
@@ -50,7 +50,7 @@ const MyAccount: React.FC<Props> = (props: Props) => {
   const getData = () => {
     setIsLoading(true);
     api
-      .getOrders({ page, size })
+      .getOrders({ page, limit })
       .then((res) => (store.orders = res.data))
       .catch((error) => console.error("error", error))
       .finally(() => {
@@ -60,7 +60,7 @@ const MyAccount: React.FC<Props> = (props: Props) => {
 
   React.useEffect(() => {
     getData();
-  }, [page, size]);
+  }, [page, limit]);
 
   React.useEffect(() => {
     console.log("updated orders");
@@ -79,10 +79,11 @@ const MyAccount: React.FC<Props> = (props: Props) => {
               pagination
               paginationServer
               paginationTotalRows={store.orders.meta.totalItems}
-              paginationPerPage={size}
+              paginationPerPage={limit}
               highlightOnHover
               responsive
               onChangePage={(page) => setPage(page)}
+              onChangeRowsPerPage={(row) => setLimit(row)}
             />
           </Card.Body>
         </Card>

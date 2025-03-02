@@ -28,7 +28,7 @@ const MainRoute = ({ user }) => {
   React.useEffect(() => {
 
     const requests = [
-      api.getProducts({page, size}),
+      api.getProducts({page, limit: size}),
       api.getCategories(),
       api.getPaymentMethods({})];
 

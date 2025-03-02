@@ -17,9 +17,16 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import LoginSignup from "./LoginSignup";
 import Cart from "./Cart";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {store, useStore} from '../store';
+import { store, useStore } from "../store";
 
-const Header = ({ setIsLoginOpen, isLoginOpen, setSearchQuery, api, onUpdateQuantity, onRemoveItem }) => {
+const Header = ({
+  setIsLoginOpen,
+  isLoginOpen,
+  setSearchQuery,
+  api,
+  onUpdateQuantity,
+  onRemoveItem,
+}) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -34,48 +41,71 @@ const Header = ({ setIsLoginOpen, isLoginOpen, setSearchQuery, api, onUpdateQuan
   const handleSearchChange = (e) => {
     const newSearchQuery = e.target.value;
 
-    
-    if(searchTimeout !== null) {
+    if (searchTimeout !== null) {
       clearTimeout(searchTimeout);
     }
     const timeout = setTimeout(() => {
       setSearchQuery(newSearchQuery);
-    
 
-    // Find the category where the item exists
-    const matchingCategory = store.products.find((item) => item.name.toLowerCase().includes(newSearchQuery.toLowerCase()))?.category.name;
+      const params = new URLSearchParams();
+      params.append('search', newSearchQuery);
 
-    // If a matching category is found, update the URL with search and category
-    if (matchingCategory) {
-      const params = new URLSearchParams(location.search);
-      params.set("search", newSearchQuery);
-      params.set("category", matchingCategory);  // Set the correct category
-      navigate(`/Menu?${params.toString()}`, { replace: true }); // Redirect to Menu with search and category
-    } else {
-      // If no matching item is found, stay on the Home page or display a message
-      console.log("No matching item found!");
-    }
-    }, 750)
+      navigate(`/Menu?${params.toString()}`, { replace: true });
+      
+    }, 750);
     setSearchTimeout(timeout);
   };
 
-  React.useEffect(() => {console.log('snap cart', snap.cart)}, [snap.cart])
+  React.useEffect(() => {
+    console.log("snap cart", snap.cart);
+  }, [snap.cart]);
 
   const CartComponent = React.useMemo(() => {
-    console.log('here');
-     return (<Cart onUpdateQuantity={onUpdateQuantity} onRemoveItem={onRemoveItem} />)}, [snap.cart]);
+    return (
+      <Cart onUpdateQuantity={onUpdateQuantity} onRemoveItem={onRemoveItem} />
+    );
+  }, [snap.cart]);
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="sticky" sx={{ backgroundColor: "#008000", padding: "8px 20px" }}>
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <AppBar
+        position="sticky"
+        sx={{ backgroundColor: "#008000", padding: "8px 20px" }}
+      >
+        <Toolbar
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           {/* Logo and Search Bar */}
-          <Box sx={{ display: "flex", alignItems: "center" }} onClick={() => navigate('/')}>
-            <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
+          <Box
+            sx={{ display: "flex", alignItems: "center" }}
+            onClick={() => navigate("/")}
+          >
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              sx={{ mr: 2 }}
+            >
               <MenuIcon sx={{ fontSize: 30, color: "black" }} />
             </IconButton>
-            <img src="/ninja.png" alt="Restaurant Logo" style={{ height: "50px", width: "auto", borderRadius: "5px" }} />
-            <Typography variant="h6" sx={{ ml: 1, fontWeight: "bold", color: "white", fontStyle: "italic"}}>
+            <img
+              src="/ninja.png"
+              alt="Restaurant Logo"
+              style={{ height: "50px", width: "auto", borderRadius: "5px" }}
+            />
+            <Typography
+              variant="h6"
+              sx={{
+                ml: 1,
+                fontWeight: "bold",
+                color: "white",
+                fontStyle: "italic",
+              }}
+            >
               FFNinja
             </Typography>
           </Box>
@@ -107,28 +137,57 @@ const Header = ({ setIsLoginOpen, isLoginOpen, setSearchQuery, api, onUpdateQuan
           />
 
           {/* Navigation Links & Cart */}
-          <Box sx={{ display: "flex", alignItems: "left", marginLeft: "350px" }}>
-            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/home">
+          <Box
+            sx={{ display: "flex", alignItems: "left", marginLeft: "350px" }}
+          >
+            <Button
+              sx={{ color: "white", textTransform: "none", fontWeight: "bold" }}
+              component={Link}
+              to="/home"
+            >
               Home
             </Button>
-            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/menu">
+            <Button
+              sx={{ color: "white", textTransform: "none", fontWeight: "bold" }}
+              component={Link}
+              to="/menu"
+            >
               Menu
             </Button>
-            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} component={Link} to="/profile">
+            <Button
+              sx={{ color: "white", textTransform: "none", fontWeight: "bold" }}
+              component={Link}
+              to="/profile"
+            >
               Profile
             </Button>
-            <Button sx={{ color: "white", textTransform: "none", fontWeight: "bold" }} onClick={() => {
-              if(api.user && api.user !== null) {
-                navigate('/account')
-              }
-            }}>
+            <Button
+              sx={{ color: "white", textTransform: "none", fontWeight: "bold" }}
+              onClick={() => {
+                if (api.user && api.user !== null) {
+                  navigate("/account");
+                } else {
+                  setIsLoginOpen(true);
+                }
+              }}
+            >
               My Account
             </Button>
           </Box>
 
           {/* Shopping Cart */}
           <IconButton sx={{ color: "black", ml: 2 }} onClick={handleCartToggle}>
-            <Badge badgeContent={store.cart ? store.cart.cartItems.reduce((item, val) => item + val.quantity, 0): 0} color="error">
+            <Badge
+              badgeContent={
+                store.cart
+                  ? store.cart.cartItems.reduce(
+                      (item, val) => item + val.quantity,
+                      0
+                    )
+                  : 0
+              }
+              color="error"
+            >
               <ShoppingCartIcon sx={{ fontSize: 28 }} />
             </Badge>
           </IconButton>
@@ -141,7 +200,9 @@ const Header = ({ setIsLoginOpen, isLoginOpen, setSearchQuery, api, onUpdateQuan
       </Drawer>
 
       {/* Login/Signup Popup */}
-      {isLoginOpen && <LoginSignup isOpen={isLoginOpen} setIsOpen={setIsLoginOpen} />}
+      {isLoginOpen && (
+        <LoginSignup isOpen={isLoginOpen} setIsOpen={setIsLoginOpen} />
+      )}
     </Box>
   );
 };
