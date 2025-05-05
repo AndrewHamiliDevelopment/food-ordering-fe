@@ -1,82 +1,220 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Typography, TextField, Button, Select, MenuItem, IconButton } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
+import React, { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  MenuItem,
+  IconButton,
+  FormHelperText,
+} from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useNavigate, useLocation } from "react-router-dom";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import { store } from "../store";
+import { each } from "lodash";
+import { formatNumberCurrency } from "../shared";
+import { useFormik } from "formik";
+import { borderRadius } from "@mui/system";
+import { orderSchema } from "../validations";
+import { ListGroup, ListGroupItem, Form } from "react-bootstrap";
 
-const Checkout = () => {
+const Checkout = ({ api }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { cart, total } = location.state || { cart: [], total: 0 };
-  
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [contactNumber, setContactNumber] = useState('');
-  const [address, setAddress] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('');
+
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [contactNumber, setContactNumber] = useState("");
+  const [address, setAddress] = useState("");
+  const [selectedAddressId, setSelectedAddressId] = React.useState(0);
+  const [paymentMethod, setPaymentMethod] = useState("");
   const [position, setPosition] = useState([14.676, 121.043]); // Default to Manila
-  
+  const [summary, setSummary] = React.useState({ subTotal: 0, grandTotal: 0 });
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  const { addresses, paymentMethods, cart } = store;
+
   const markerIcon = new L.Icon({
-    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+    iconUrl:
+      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
     iconSize: [25, 41],
-    iconAnchor: [12, 41]
+    iconAnchor: [12, 41],
   });
-  
+
   function LocationMarker() {
     useMapEvents({
       dragend: (event) => {
         const { lat, lng } = event.target.getLatLng();
         setPosition([lat, lng]);
         setAddress(`Lat: ${lat}, Lng: ${lng}`); // Simulated address update
-      }
+      },
     });
     return <Marker position={position} draggable icon={markerIcon} />;
   }
-  
+
+  const formik = useFormik({
+    initialValues: { addressId: null, cartId: null, paymentMethodId: null },
+    validationSchema: orderSchema,
+    onSubmit: async (values) => {
+      console.log("🚀 ~ Checkout ~ values:", values);
+      const { cartId, addressId, paymentMethodId } = values;
+      const dto = { cartId, addressId, paymentMethodId };
+      setIsSubmitting(true);
+      api
+        .createOrder(dto)
+        .then(async (res) => {
+          console.log("🚀 ~ api.createOrder ~ res:", res);
+          await api.getCart().then((res) => (store.cart = res.data));
+          navigate("/");
+        })
+        .catch((error) => {
+          console.error("error", error);
+        })
+        .finally(() => {
+          setIsSubmitting(false);
+        })
+    },
+  });
+
+  React.useEffect(() => {
+    console.log("useEffect", store.cart);
+    if (store.cart.cartItems !== null) {
+      console.log("cartItems", store.cart.cartItems);
+      const subTotal = store.cart.cartItems.reduce(
+        (total, val) => total + Number(val.product.price) * val.quantity,
+        0
+      );
+      console.log("🚀 ~ React.useEffect ~ subTotal:", subTotal);
+      const deliveryFee = 49;
+      const grandTotal = deliveryFee + subTotal;
+      setSummary({ subTotal, grandTotal });
+    }
+    formik.setFieldValue("cartId", cart.id);
+  }, []);
+
+  React.useEffect(() => {
+    console.log("formik", formik);
+  }, [formik]);
+
+  const selectAddress = (id) => {
+    if (selectedAddressId === id) {
+      setSelectedAddressId(0);
+      formik.setFieldValue('addressId', 0);
+    } else {
+      setSelectedAddressId(id);
+      formik.setFieldValue('addressId', id);
+    }
+  };
+
   return (
-    <Box sx={{ maxWidth: 600, margin: 'auto', padding: 2 }}>
+    <Box sx={{ maxWidth: 600, margin: "auto", padding: 2 }}>
       {/* Back Button */}
-      <IconButton onClick={() => navigate('/menu')} sx={{ mb: 2 }}>
+      <IconButton onClick={() => navigate("/menu")} sx={{ mb: 2 }}>
         <ArrowBackIcon /> Back
       </IconButton>
-      
-      <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Contact Details</Typography>
-      <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-        <TextField fullWidth label="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-        <TextField fullWidth label="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-      </Box>
-      <TextField fullWidth label="Mobile Number" value={contactNumber} onChange={(e) => setContactNumber(e.target.value)} sx={{ mt: 2 }} />
-      
-      {/* Map Selection */}
-      <Typography variant="h6" sx={{ fontWeight: 'bold', mt: 3 }}>Select Delivery Location</Typography>
+
+      <form onSubmit={formik.handleSubmit}>
+        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+          Contact Details
+        </Typography>
+        <Box sx={{ gap: 2, mt: 2, mb: 2, border: formik.errors.addressId ? 1: 0, borderRadius: Boolean(formik.errors.addressId) ? 1: 0, borderColor: Boolean(formik.errors.addressId) ? 'red': '' }}>
+          <Form.Group>
+          <Form.Control hidden isInvalid={Boolean(formik.errors.addressId)} type="text" />
+            <Form.Control.Feedback type="invalid">
+              {formik.errors.addressId}
+            </Form.Control.Feedback>
+            <ListGroup>
+              {addresses.map((address, index) => {
+                const {
+                  id,
+                  line1,
+                  line2,
+                  zipCode,
+                  recipientName,
+                  contactNumber,
+                  province,
+                  cityMunicipality,
+                } = address;
+                return (
+                  <ListGroup.Item
+                    active={selectedAddressId === id}
+                    onClick={() => selectAddress(id)}
+                    key={index}
+                  >
+                    <Typography variant="subtitle1">{province}</Typography>
+                    <Typography variant="body1">{line1}</Typography>
+                    <Typography variant="body1">{line2}</Typography>
+                    <Typography variant="body1">{cityMunicipality}</Typography>
+                    <Typography variant="body1">{zipCode}</Typography>
+                    <br />
+                    <Typography variant="body2">{recipientName}</Typography>
+                    <Typography variant="body2">{contactNumber}</Typography>
+                  </ListGroup.Item>
+                );
+              })}
+            </ListGroup>
+          </Form.Group>
+        </Box>
+
+        {/* Map Selection */}
+        {/* <Typography variant="h6" sx={{ fontWeight: 'bold', mt: 3 }}>Select Delivery Location</Typography>
       <MapContainer center={position} zoom={13} style={{ height: 300, marginTop: 10 }}>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <LocationMarker />
       </MapContainer>
-      <TextField fullWidth label="Address" value={address} onChange={(e) => setAddress(e.target.value)} sx={{ mt: 2 }} />
-      
-      {/* Payment Method */}
-      <Typography variant="h6" sx={{ fontWeight: 'bold', mt: 3 }}>Payment Method</Typography>
-      <Select fullWidth value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} sx={{ mt: 1 }}>
-        <MenuItem value="Cash on Delivery">Cash on Delivery</MenuItem>
-        <MenuItem value="Credit Card">Credit Card</MenuItem>
-        <MenuItem value="Gcash">Gcash</MenuItem>
-      </Select>
-      
-      {/* Order Summary */}
-      <Typography variant="h6" sx={{ fontWeight: 'bold', mt: 3 }}>Order Summary</Typography>
-      {cart.map((item) => (
-        <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-          <Typography>{item.quantity}x {item.name}</Typography>
-          <Typography>₱ {item.price * item.quantity}</Typography>
-        </Box>
-      ))}
-      <Typography variant="h6" sx={{ fontWeight: 'bold', mt: 2 }}>Total: ₱ {total}</Typography>
-      
-      {/* Confirm Order */}
-      <Button variant="contained" fullWidth sx={{ backgroundColor: '#FFC300', color: 'black', mt: 3 }}>Place Order</Button>
+      <TextField fullWidth label="Address" value={address} onChange={(e) => setAddress(e.target.value)} sx={{ mt: 2 }} /> */}
+
+        {/* Payment Method */}
+        <Typography variant="h6" sx={{ fontWeight: "bold", mt: 3 }}>
+          Payment Method
+        </Typography>
+        <Form.Group>
+          <Form.Select
+            isInvalid={Boolean(formik.errors.paymentMethodId)}
+            onChange={formik.handleChange}
+            id="paymentMethodId"
+            onBlur={formik.handleBlur}
+          >
+            <option hidden>SELECT Payment Method</option>
+            {paymentMethods.map((pm, index) => (
+              <option value={pm.id}>{pm.name}</option>
+            ))}
+          </Form.Select>
+          <Form.Control.Feedback type="invalid">
+            {formik.errors.paymentMethodId}
+          </Form.Control.Feedback>
+        </Form.Group>
+        {/* {formik.touched.name && Boolean(formik.errors.name)  */}
+
+        {/* Order Summary */}
+        <Typography variant="h6" sx={{ fontWeight: "bold", mt: 3 }}>
+          Order Summary
+        </Typography>
+        {cart.cartItems.map((item) => (
+          <Box
+            key={item.id}
+            sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}
+          >
+            <Typography>
+              {item.quantity} x {item.product.name}
+            </Typography>
+            <Typography>
+              {formatNumberCurrency(item.product.price * item.quantity)}
+            </Typography>
+          </Box>
+        ))}
+        <Typography variant="h6" sx={{ fontWeight: "bold", mt: 2 }}>
+          Total: {formatNumberCurrency(summary.grandTotal)}
+        </Typography>
+
+        {/* Confirm Order */}
+        <Button disabled={isSubmitting} variant="contained" fullWidth sx={{ backgroundColor: '#FFC300', color: 'black', mt: 3 }} type={'submit'}>Place Order</Button>
+      </form>
     </Box>
   );
 };
